@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		250DED452521AB9100BDE543 /* RemindersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 250DED442521AB9100BDE543 /* RemindersView.swift */; };
 		253CA863251E30D000838BAE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 253CA862251E30D000838BAE /* GoogleService-Info.plist */; };
-		253CA87F251E349700838BAE /* TaskViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253CA87E251E349700838BAE /* TaskViewController.swift */; };
+		253CA87F251E349700838BAE /* RemindersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253CA87E251E349700838BAE /* RemindersViewController.swift */; };
 		253CA8842521973B00838BAE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253CA8832521973B00838BAE /* User.swift */; };
 		253CA88925219E7E00838BAE /* ReminderItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253CA88825219E7E00838BAE /* ReminderItem.swift */; };
 		25C9F197251D18390060DEF1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C9F196251D18390060DEF1 /* AppDelegate.swift */; };
@@ -42,8 +43,9 @@
 
 /* Begin PBXFileReference section */
 		2263A99B0288261DB9259007 /* Pods-RemindMeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RemindMeTests.release.xcconfig"; path = "Target Support Files/Pods-RemindMeTests/Pods-RemindMeTests.release.xcconfig"; sourceTree = "<group>"; };
+		250DED442521AB9100BDE543 /* RemindersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemindersView.swift; sourceTree = "<group>"; };
 		253CA862251E30D000838BAE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		253CA87E251E349700838BAE /* TaskViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewController.swift; sourceTree = "<group>"; };
+		253CA87E251E349700838BAE /* RemindersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemindersViewController.swift; sourceTree = "<group>"; };
 		253CA8832521973B00838BAE /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		253CA88825219E7E00838BAE /* ReminderItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderItem.swift; sourceTree = "<group>"; };
 		25C9F193251D18390060DEF1 /* RemindMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemindMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -122,9 +124,17 @@
 		25077E49251E2D2D0059F13E /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				253CA87E251E349700838BAE /* TaskViewController.swift */,
+				253CA87E251E349700838BAE /* RemindersViewController.swift */,
 			);
 			path = Controllers;
+			sourceTree = "<group>";
+		};
+		250DED432521AB6C00BDE543 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				250DED442521AB9100BDE543 /* RemindersView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		25C9F18A251D18390060DEF1 = {
@@ -153,6 +163,7 @@
 			isa = PBXGroup;
 			children = (
 				25077E48251E2D250059F13E /* Models */,
+				250DED432521AB6C00BDE543 /* Views */,
 				25077E49251E2D2D0059F13E /* Controllers */,
 				25C9F196251D18390060DEF1 /* AppDelegate.swift */,
 				25C9F198251D18390060DEF1 /* SceneDelegate.swift */,
@@ -435,9 +446,10 @@
 			files = (
 				253CA88925219E7E00838BAE /* ReminderItem.swift in Sources */,
 				253CA8842521973B00838BAE /* User.swift in Sources */,
+				250DED452521AB9100BDE543 /* RemindersView.swift in Sources */,
 				25C9F197251D18390060DEF1 /* AppDelegate.swift in Sources */,
 				25C9F199251D18390060DEF1 /* SceneDelegate.swift in Sources */,
-				253CA87F251E349700838BAE /* TaskViewController.swift in Sources */,
+				253CA87F251E349700838BAE /* RemindersViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

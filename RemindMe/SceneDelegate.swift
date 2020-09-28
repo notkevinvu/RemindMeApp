@@ -23,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let window = UIWindow(windowScene: windowScene)
         
-        let vc = TaskViewController()
+        let vc = RemindersViewController()
         let navController = UINavigationController(rootViewController: vc)
         
         window.rootViewController = navController

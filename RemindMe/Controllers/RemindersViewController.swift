@@ -12,15 +12,18 @@ import Firebase
 class RemindersViewController: UIViewController {
     
     let usersRef = Database.database().reference(withPath: "users")
-
+    
+    // MARK: View lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        testBackground()
+        setup()
     }
     
-    private func testBackground() {
-        view.backgroundColor = .blue
+    // MARK: Setup
+    private func setup() {
+        let contentView = RemindersView()
+        view = contentView
     }
     
     
