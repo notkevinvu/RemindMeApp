@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		253CA863251E30D000838BAE /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 253CA862251E30D000838BAE /* GoogleService-Info.plist */; };
 		253CA87F251E349700838BAE /* TaskViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253CA87E251E349700838BAE /* TaskViewController.swift */; };
+		253CA8842521973B00838BAE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253CA8832521973B00838BAE /* User.swift */; };
+		253CA88925219E7E00838BAE /* ReminderItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253CA88825219E7E00838BAE /* ReminderItem.swift */; };
 		25C9F197251D18390060DEF1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C9F196251D18390060DEF1 /* AppDelegate.swift */; };
 		25C9F199251D18390060DEF1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C9F198251D18390060DEF1 /* SceneDelegate.swift */; };
 		25C9F19E251D18390060DEF1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 25C9F19C251D18390060DEF1 /* Main.storyboard */; };
@@ -42,6 +44,8 @@
 		2263A99B0288261DB9259007 /* Pods-RemindMeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RemindMeTests.release.xcconfig"; path = "Target Support Files/Pods-RemindMeTests/Pods-RemindMeTests.release.xcconfig"; sourceTree = "<group>"; };
 		253CA862251E30D000838BAE /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		253CA87E251E349700838BAE /* TaskViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewController.swift; sourceTree = "<group>"; };
+		253CA8832521973B00838BAE /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		253CA88825219E7E00838BAE /* ReminderItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderItem.swift; sourceTree = "<group>"; };
 		25C9F193251D18390060DEF1 /* RemindMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemindMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C9F196251D18390060DEF1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		25C9F198251D18390060DEF1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -109,6 +113,8 @@
 		25077E48251E2D250059F13E /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				253CA8832521973B00838BAE /* User.swift */,
+				253CA88825219E7E00838BAE /* ReminderItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -427,6 +433,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				253CA88925219E7E00838BAE /* ReminderItem.swift in Sources */,
+				253CA8842521973B00838BAE /* User.swift in Sources */,
 				25C9F197251D18390060DEF1 /* AppDelegate.swift in Sources */,
 				25C9F199251D18390060DEF1 /* SceneDelegate.swift in Sources */,
 				253CA87F251E349700838BAE /* TaskViewController.swift in Sources */,
