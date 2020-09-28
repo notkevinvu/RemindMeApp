@@ -23,10 +23,22 @@ class RemindersViewController: UIViewController {
     // MARK: Setup
     private func setup() {
         let contentView = RemindersView()
+        contentView.setDelegate(to: self)
         view = contentView
+    }
+
+}
+
+extension RemindersViewController: RemindersViewDelegate {
+    
+    func didTapAddReminderButton() {
+        print("Tapped add")
+    }
+    
+    func didTapRemoveReminderButton() {
+        print("Tapped remove")
     }
     
     
-
 }
 
