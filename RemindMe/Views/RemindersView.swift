@@ -21,6 +21,26 @@ class RemindersView: UIView {
     
     // MARK: UI Properties
     
+    lazy var remindersTableView: UITableView = {
+        let table = UITableView()
+        table.translatesAutoresizingMaskIntoConstraints = false
+        table.layer.borderWidth = 1
+        table.layer.cornerRadius = 10
+        
+        // default inset extends past trailing edge; this creates a symmetric separator
+        table.separatorInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
+        table.separatorColor = .darkGray
+        table.backgroundColor = .white
+        
+        // TODO: HOok up table view to show reminder items, then hook up
+        // the firebase add/remove value methods to nav button and swipe action
+        // respectively
+        
+        table.register(RemindersTableViewCell.self, forCellReuseIdentifier: RemindersTableViewCell.cellID)
+        
+        return table
+    }()
+    
     lazy var addReminderButton: UIButton = {
         let btn = UIButton()
         btn.translatesAutoresizingMaskIntoConstraints = false
@@ -67,19 +87,13 @@ class RemindersView: UIView {
     private func setup() {
         backgroundColor = .white
         
-        addSubview(addReminderButton)
-        addSubview(removeReminderButton)
+        addSubview(remindersTableView)
         
         NSLayoutConstraint.activate([
-            addReminderButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            addReminderButton.centerXAnchor.constraint(equalTo: self.centerXAnchor, constant: -100),
-            addReminderButton.heightAnchor.constraint(equalToConstant: 100),
-            addReminderButton.widthAnchor.constraint(equalToConstant: 100),
-            
-            removeReminderButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            removeReminderButton.centerXAnchor.constraint(equalTo: self.centerXAnchor, constant: 100),
-            removeReminderButton.heightAnchor.constraint(equalToConstant: 100),
-            removeReminderButton.widthAnchor.constraint(equalToConstant: 100)
+            remindersTableView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            remindersTableView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            remindersTableView.heightAnchor.constraint(lessThanOrEqualToConstant: 600),
+            remindersTableView.widthAnchor.constraint(equalToConstant: 300)
         ])
     }
     
