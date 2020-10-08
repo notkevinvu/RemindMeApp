@@ -56,7 +56,7 @@ class RemindersViewController: UIViewController {
     }
     
     private func setTableViewDelegate() {
-        contentView.setDelegate(to: self)
+//        contentView.setDelegate(to: self)
         contentView.remindersTableView.delegate = self
         contentView.remindersTableView.dataSource = self
     }

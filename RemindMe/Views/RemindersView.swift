@@ -41,38 +41,6 @@ class RemindersView: UIView {
         return table
     }()
     
-    lazy var addReminderButton: UIButton = {
-        let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.layer.cornerRadius = 5
-        btn.backgroundColor = .green
-        btn.layer.borderWidth = 1
-        
-        btn.setImage(UIImage(systemName: "plus.app"), for: .normal)
-        btn.contentMode = .scaleAspectFit
-        btn.tintColor = .black
-        
-        btn.addTarget(self, action: #selector(didTapAddReminderButton(sender:)), for: .touchUpInside)
-        
-        return btn
-    }()
-    
-    lazy var removeReminderButton: UIButton = {
-        let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.layer.cornerRadius = 5
-        btn.backgroundColor = .red
-        btn.layer.borderWidth = 1
-        
-        btn.setImage(UIImage(systemName: "minus.square"), for: .normal)
-        btn.contentMode = .scaleAspectFit
-        btn.tintColor = .black
-        
-        btn.addTarget(self, action: #selector(didTapRemoveReminderButton(sender:)), for: .touchUpInside)
-        
-        return btn
-    }()
-    
     // MARK: Object lifecycle
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -97,19 +65,8 @@ class RemindersView: UIView {
         ])
     }
     
-    func setDelegate(to delegate: RemindersViewDelegate) {
-        self.delegate = delegate
-    }
-    
-    
-    // MARK: Button methods
-    
-    @objc func didTapAddReminderButton(sender: UIButton) {
-        delegate?.didTapAddReminderButton()
-    }
-    
-    @objc func didTapRemoveReminderButton(sender: UIButton) {
-        delegate?.didTapRemoveReminderButton()
-    }
+//    func setDelegate(to delegate: RemindersViewDelegate) {
+//        self.delegate = delegate
+//    }
     
 }
