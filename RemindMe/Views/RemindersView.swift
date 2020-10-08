@@ -57,12 +57,9 @@ class RemindersView: UIView {
         
         addSubview(remindersTableView)
         
-        NSLayoutConstraint.activate([
-            remindersTableView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            remindersTableView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            remindersTableView.heightAnchor.constraint(lessThanOrEqualToConstant: 600),
-            remindersTableView.widthAnchor.constraint(equalToConstant: 300)
-        ])
+        // setting constraints without constants
+        remindersTableView.setAndActivateConstraints(top: self.safeAreaLayoutGuide.topAnchor, bottom: self.safeAreaLayoutGuide.bottomAnchor, leading: self.leadingAnchor, trailing: self.trailingAnchor)
+        
     }
     
 //    func setDelegate(to delegate: RemindersViewDelegate) {
