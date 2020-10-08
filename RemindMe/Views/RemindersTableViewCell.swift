@@ -21,10 +21,12 @@ class RemindersTableViewCell: UITableViewCell {
     struct RemindersCellModel {
         var nameOfReminder: String
         var timeRemaining: String
+        var reminderType: ReminderType
         
-        init(nameOfReminder: String, timeRemaining: Int) {
+        init(nameOfReminder: String, timeRemaining: Int, reminderType: ReminderType) {
             self.nameOfReminder = nameOfReminder
             self.timeRemaining = String(timeRemaining)
+            self.reminderType = reminderType
         }
     }
     
@@ -45,9 +47,17 @@ class RemindersTableViewCell: UITableViewCell {
         detailTextLabel?.font = UIFont.systemFont(ofSize: 10)
     }
     
-    func configureCell(withModel model: RemindersTableViewCell.RemindersCellModel, forReminderType reminderType: String) {
+    func configureCell(withModel model: RemindersTableViewCell.RemindersCellModel) {
         self.nameOfReminder = model.nameOfReminder
-        self.reminderType = reminderType
+        
+        switch model.reminderType {
+        case ReminderType.routineTask:
+            self.reminderType = "Routine Task"
+        case ReminderType.refillItem:
+            self.reminderType = "Item Refill"
+        default:
+            self.reminderType = "Reminder"
+        }
     }
 
 }

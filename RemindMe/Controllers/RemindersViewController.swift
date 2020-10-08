@@ -11,29 +11,99 @@ import Firebase
 
 class RemindersViewController: UIViewController {
     
+    // MARK: Constants
+    let usersConstant = "users"
+    let reminderItemsConstant = "reminder-items"
+    
     // MARK: Properties
     
-    let usersRef = Database.database().reference(withPath: "users")
+    var contentView: RemindersView!
+    
+    lazy var usersRef = Database.database().reference(withPath: usersConstant)
+    lazy var reminderItemsRef = usersRef.child(reminderItemsConstant)
     
     var reminderItems = [ReminderItem]()
+    
+    // MARK: Object lifecycle
+    
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        setup()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
     
     // MARK: View lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setup()
+        setTableViewDelegate()
+        configureNavBar()
+    }
+    
+    override func loadView() {
+        super.loadView()
+        view = contentView
     }
     
     // MARK: Setup
     private func setup() {
-        let contentView = RemindersView()
+        let view = RemindersView()
+        contentView = view
+    }
+    
+    private func setTableViewDelegate() {
         contentView.setDelegate(to: self)
         contentView.remindersTableView.delegate = self
         contentView.remindersTableView.dataSource = self
-        
-        view = contentView
     }
-
+    
+    private func configureNavBar() {
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAddReminderBarButton))
+    }
+    
+    // MARK: Bar button methods
+    
+    @objc func didTapAddReminderBarButton() {
+        let ac = UIAlertController(title: "Reminder",
+                                   message: "Add a reminder",
+                                   preferredStyle: .alert)
+        
+        // 0 - name of reminder
+        // 1 - user (should eventually be email of user
+        // 2 - reminder type (should be a UIPickerView eventually)
+        // 3 - date added (current date)
+        // 4 - current interval start date (just use current date)
+        ac.addTextField()
+        ac.textFields?.first?.placeholder = "Name of reminder"
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        
+        let saveAction = UIAlertAction(title: "Save", style: .default) { [weak self] (action) in
+            
+            guard
+                let self = self,
+                let textField = ac.textFields?.first,
+                let nameText = textField.text else { return }
+            
+            let reminder = ReminderItem(nameOfReminder: nameText, addedByUser: "kevinvu59@gmail.com", reminderType: .routineTask, currentIntervalStartDate: Date())
+            
+            let reminderItemRef = self.reminderItemsRef.child(nameText.lowercased())
+            
+            reminderItemRef.setValue(reminder.toDict())
+            
+            self.reminderItems.append(reminder)
+            self.contentView.remindersTableView.reloadData()
+        }
+        
+        ac.addAction(cancelAction)
+        ac.addAction(saveAction)
+        
+        present(ac, animated: true, completion: nil)
+    }
 }
 
 extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
@@ -46,6 +116,9 @@ extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: RemindersTableViewCell.cellID, for: indexPath) as! RemindersTableViewCell
         
+        let model = RemindersTableViewCell.RemindersCellModel(nameOfReminder: reminderItems[indexPath.row].nameOfReminder, timeRemaining: 5, reminderType: reminderItems[indexPath.row].reminderType)
+        
+        cell.configureCell(withModel: model)
         /*
          TODO: Add a date variable to ReminderItem and delegate checking
          the time remaining to a separate model/worker
