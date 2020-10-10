@@ -23,10 +23,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let window = UIWindow(windowScene: windowScene)
         
+        let tabBarController = UITabBarController()
+        
         let vc = RemindersViewController()
         let navController = UINavigationController(rootViewController: vc)
+        navController.tabBarItem.title = "Test"
+        navController.tabBarItem.image = UIImage(systemName: "list.bullet")
         
-        window.rootViewController = navController
+        tabBarController.viewControllers = [navController]
+        
+        window.rootViewController = tabBarController
         self.window = window
         window.makeKeyAndVisible()
         

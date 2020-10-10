@@ -13,14 +13,17 @@ class RemindersViewController: UIViewController {
     
     // MARK: Constants
     let usersConstant = "users"
-    let reminderItemsConstant = "reminder-items"
+    let usersByEmailConstant = "usersByEmail"
     
     // MARK: Properties
     
     var contentView: RemindersView!
     
+    var user: User = User(uid: "fakeID", email: "fakeEmail@example.com")
     lazy var usersRef = Database.database().reference(withPath: usersConstant)
-    lazy var reminderItemsRef = usersRef.child(reminderItemsConstant)
+    lazy var currentUserRef = usersRef.child(user.uid)
+    // TODO: Re-implement this if we want to denormalize our data
+//    lazy var usersByEmailRef = Database.database().reference(withPath: usersByEmailConstant)
     
     var reminderItems = [ReminderItem]()
     
@@ -37,11 +40,14 @@ class RemindersViewController: UIViewController {
     }
     
     // MARK: View lifecycle
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        setTableViewDelegate()
-        configureNavBar()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        addAuthListener()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+//        Auth.auth().removeStateDidChangeListener(authStateListener)
     }
     
     override func loadView() {
@@ -49,10 +55,20 @@ class RemindersViewController: UIViewController {
         view = contentView
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        setTableViewDelegate()
+        configureNavBar()
+    }
+    
     // MARK: Setup
     private func setup() {
         let view = RemindersView()
         contentView = view
+        
+        signInOnLoad()
+        addRemindersRefObserver()
     }
     
     private func setTableViewDelegate() {
@@ -63,9 +79,55 @@ class RemindersViewController: UIViewController {
     
     private func configureNavBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAddReminderBarButton))
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(testUserAuth))
     }
     
-    // MARK: Bar button methods
+    // MARK: Auth methods
+    private func signInOnLoad() {
+        Auth.auth().signInAnonymously { (authResult, error) in
+            if let error = error {
+                print(error.localizedDescription)
+                return
+            }
+            
+            guard let user = authResult?.user else { return }
+            
+            self.user = User(authData: user)
+        }
+    }
+    
+    private func addAuthListener() {
+        Auth.auth().addStateDidChangeListener { (auth, user) in
+            guard let user = user else { return }
+            
+            self.user = User(authData: user)
+            
+            // TODO: Re-implement this if we potentially want to denormalize
+            // our data
+//            let currentUserEmailRef = self.usersByEmailRef.child(user.uid)
+//            currentUserEmailRef.observe(.value) { [weak self] (snapshot) in
+//                guard let self = self else { return }
+//
+//                if let value = snapshot.value as? String {
+//                    if value == "anonymous@anon.com" {
+//                        print("Currently anonymous")
+//                    }
+//                    // if the user uid key at currentUserEmailRef exists, do nothing
+//                    return
+//                } else {
+//                    // otherwise, if it doesn't exist, create the key/value there
+//                    if let userEmail = self.user.email {
+//                        currentUserEmailRef.setValue(userEmail)
+//                    } else {
+//                        currentUserEmailRef.setValue("anonymous@anon.com")
+//                    }
+//                }
+//            }
+        }
+    }
+    
+    // MARK: Firebase - Add item
     
     @objc func didTapAddReminderBarButton() {
         let ac = UIAlertController(title: "Reminder",
@@ -91,7 +153,8 @@ class RemindersViewController: UIViewController {
             
             let reminder = ReminderItem(nameOfReminder: nameText, addedByUser: "kevinvu59@gmail.com", reminderType: .routineTask, currentIntervalStartDate: Date())
             
-            let reminderItemRef = self.reminderItemsRef.child(nameText.lowercased())
+//            let reminderItemRef = self.reminderItemsRef.child(nameText.lowercased())
+            let reminderItemRef = self.currentUserRef.child(nameText.lowercased())
             
             reminderItemRef.setValue(reminder.toDict())
             
@@ -104,13 +167,39 @@ class RemindersViewController: UIViewController {
         
         present(ac, animated: true, completion: nil)
     }
+    
+    @objc func testUserAuth() {
+        print(reminderItems.count, reminderItems.first?.nameOfReminder)
+        contentView.remindersTableView.reloadData()
+    }
+    
+    // MARK: Reminders ref observer
+    
+    private func addRemindersRefObserver() {
+        currentUserRef.observe(.value) { (snapshot) in
+            var newReminderItems: [ReminderItem] = []
+            
+            for child in snapshot.children {
+                guard
+                    let snapshot = child as? DataSnapshot,
+                    let reminderItem = ReminderItem(snapshot: snapshot)
+                else { return }
+                
+                newReminderItems.append(reminderItem)
+            }
+            
+            self.reminderItems = newReminderItems
+            self.contentView.remindersTableView.reloadData()
+        }
+    }
+    
 }
 
+// MARK: Table view methods
 extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return reminderItems.count
-//        return 4
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -126,18 +215,14 @@ extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
          This needs to check the stored dateinterval and/or the remaining time
          so that the remaining time can be updated and presented as a string
          */
-//        let cellModel = RemindersTableViewCell.RemindersCellModel(nameOfReminder: reminderItems[indexPath.row].nameOfReminder, timeRemaining: 10)
-        
-//        cell.configureCell(withModel: cellModel, forReminderType: "")
         
         return cell
     }
     
-    
-    
-    
 }
 
+
+// MARK: View delegate methods
 extension RemindersViewController: RemindersViewDelegate {
     
     func didTapAddReminderButton() {

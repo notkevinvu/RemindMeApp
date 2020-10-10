@@ -49,6 +49,7 @@ class RemindersTableViewCell: UITableViewCell {
     
     func configureCell(withModel model: RemindersTableViewCell.RemindersCellModel) {
         self.nameOfReminder = model.nameOfReminder
+        textLabel?.text = nameOfReminder
         
         switch model.reminderType {
         case ReminderType.routineTask:
@@ -58,6 +59,7 @@ class RemindersTableViewCell: UITableViewCell {
         default:
             self.reminderType = "Reminder"
         }
+        detailTextLabel?.text = reminderType
     }
 
 }

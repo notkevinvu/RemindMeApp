@@ -23,7 +23,6 @@ class RemindersView: UIView {
     
     lazy var remindersTableView: UITableView = {
         let table = UITableView()
-        table.translatesAutoresizingMaskIntoConstraints = false
         table.layer.borderWidth = 1
         table.layer.cornerRadius = 10
         
