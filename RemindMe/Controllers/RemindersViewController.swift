@@ -135,7 +135,7 @@ class RemindersViewController: UIViewController {
                                    preferredStyle: .alert)
         
         // 0 - name of reminder
-        // 1 - user (should eventually be email of user
+        // 1 - user (should eventually be email of user)
         // 2 - reminder type (should be a UIPickerView eventually)
         // 3 - date added (current date)
         // 4 - current interval start date (just use current date)
@@ -148,17 +148,44 @@ class RemindersViewController: UIViewController {
             
             guard
                 let self = self,
-                let textField = ac.textFields?.first,
-                let nameText = textField.text else { return }
+                let nameTextField = ac.textFields?.first,
+                // grab start date here
+                let nameText = nameTextField.text else { return }
             
-            let reminder = ReminderItem(nameOfReminder: nameText, addedByUser: "kevinvu59@gmail.com", reminderType: .routineTask, currentIntervalStartDate: Date())
+            /*
+             TODO: Either do reminder date calculation here or delegate to a helper class (e.g.:
+             
+             let reminderCalculator = ReminderDateCalculator()
+             reminderCalculator.findUpcomingDate(fromDate: Date(), withInterval: DateComponents)
+             )
+             
+             Also, check if there is already a reminder with the same name.
+             If so, find the # of duplicate results in the reminderItems array
+             and append something like (2) or (3) based on the # of dupes
+             
+             probably something like
+             
+             for reminder in reminderItems {
+                if reminder.nameOfReminder == nameText {
+                    numOfDupes += 1
+                } else {
+                    continue
+                }
+             }
+             
+             nameOfReminder: "\(nameText) \(numOfDupes + 1)"
+             
+             [e.g. if there was 1 dupe, the resulting name would be something like
+             "bananas (2)"]
+            */
             
-//            let reminderItemRef = self.reminderItemsRef.child(nameText.lowercased())
+            let reminder = ReminderItem(nameOfReminder: nameText, addedByUser: "kevinvu59@gmail.com", reminderType: .routineTask, currentIntervalStartDate: Date(), upcomingReminderTriggerDate: Date())
+            
             let reminderItemRef = self.currentUserRef.child(nameText.lowercased())
             
+            self.reminderItems.append(reminder)
             reminderItemRef.setValue(reminder.toDict())
             
-            self.reminderItems.append(reminder)
             self.contentView.remindersTableView.reloadData()
         }
         
@@ -170,6 +197,7 @@ class RemindersViewController: UIViewController {
     
     @objc func testUserAuth() {
         print(reminderItems.count, reminderItems.first?.nameOfReminder)
+        print(user.uid)
         contentView.remindersTableView.reloadData()
     }
     
@@ -205,7 +233,9 @@ extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: RemindersTableViewCell.cellID, for: indexPath) as! RemindersTableViewCell
         
-        let model = RemindersTableViewCell.RemindersCellModel(nameOfReminder: reminderItems[indexPath.row].nameOfReminder, timeRemaining: 5, reminderType: reminderItems[indexPath.row].reminderType)
+        let reminderItem = reminderItems[indexPath.row]
+        
+        let model = RemindersTableViewCell.RemindersCellModel(nameOfReminder: reminderItem.nameOfReminder, timeRemaining: 5, reminderType: reminderItem.reminderType)
         
         cell.configureCell(withModel: model)
         /*

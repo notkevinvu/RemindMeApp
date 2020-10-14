@@ -21,6 +21,8 @@ struct ReminderItem {
     private let reminderTypeConstant = "reminderType"
     private let dateAddedConstant = "dateAdded"
     private let currentIntervalStartDateConstant = "currentIntervalStartDate"
+    private let upcomingReminderTriggerDateConstant = "upcomingReminderTriggerDate"
+    private let isOneTimeReminderConstant = "isOneTimeReminder"
     
     // MARK: Properties
     let ref: DatabaseReference?
@@ -33,9 +35,21 @@ struct ReminderItem {
     // current interval start date should update to the new date when the reminder
     // is triggered
     let currentIntervalStartDate: Date
+    // TODO: Need to add an intervalBetweenReminders property - probably of type
+    // DateComponents? Then just extract the month/days/weeks/years out of it
+    // or create a simplified custom DateInterval that has days, months, weeks, years
+    // properties
+    let upcomingReminderTriggerDate: Date
     
     // MARK: Default init
-    init(nameOfReminder: String, addedByUser user: String, key: String = "", reminderType: ReminderType, dateAdded: Date = Date(), currentIntervalStartDate: Date) {
+    init(nameOfReminder: String,
+         addedByUser user: String,
+         key: String = "",
+         reminderType: ReminderType,
+         dateAdded: Date = Date(),
+         currentIntervalStartDate: Date,
+         upcomingReminderTriggerDate: Date) {
+        
         self.ref = nil
         self.key = key
         self.nameOfReminder = nameOfReminder
@@ -43,6 +57,7 @@ struct ReminderItem {
         self.reminderType = reminderType
         self.dateAdded = dateAdded
         self.currentIntervalStartDate = currentIntervalStartDate
+        self.upcomingReminderTriggerDate = upcomingReminderTriggerDate
     }
     
     // MARK: Snapshot init
@@ -54,7 +69,8 @@ struct ReminderItem {
             let addedByUser = value[addedByUserConstant] as? String,
             let reminderType = value[reminderTypeConstant] as? String,
             let dateAddedString = value[dateAddedConstant] as? String,
-            let currentIntervalStartDateString = value[currentIntervalStartDateConstant] as? String
+            let currentIntervalStartDateString = value[currentIntervalStartDateConstant] as? String,
+            let upcomingReminderTriggerDateString = value[upcomingReminderTriggerDateConstant] as? String
         else {
             // handle errors in extracting data from snapshot
             return nil
@@ -79,7 +95,8 @@ struct ReminderItem {
         
         guard
             let dateAdded = dateFormatter.date(from: dateAddedString),
-            let currentIntervalStartDate = dateFormatter.date(from: currentIntervalStartDateString)
+            let currentIntervalStartDate = dateFormatter.date(from: currentIntervalStartDateString),
+            let upcomingReminderTriggerDate = dateFormatter.date(from: upcomingReminderTriggerDateString)
         else {
             // TODO: handle errors in formatting dates from string
             return nil
@@ -87,10 +104,14 @@ struct ReminderItem {
         
         self.dateAdded = dateAdded
         self.currentIntervalStartDate = currentIntervalStartDate
+        self.upcomingReminderTriggerDate = upcomingReminderTriggerDate
     }
     
-    // MARK: Utility methods
-    
+}
+
+
+// MARK: Utility methods
+extension ReminderItem {
     /*
      converts our ReminderItem struct into a dictionary for convenience
      when using the setValue(_:) method on a reference to save data to firebase
@@ -99,18 +120,21 @@ struct ReminderItem {
     func toDict() -> Any {
         let dateAddedString = getStringDateFrom(date: dateAdded)
         let currentIntervalStartDateString = getStringDateFrom(date: currentIntervalStartDate)
+        let upcomingReminderTriggerDateString = getStringDateFrom(date: upcomingReminderTriggerDate)
         
         return [
-            "nameOfReminder": nameOfReminder,
-            "addedByUser": addedByUser,
-            "reminderType": reminderType.rawValue,
-            "dateAdded": dateAddedString,
-            "currentIntervalStartDate": currentIntervalStartDateString
+            nameOfReminderConstant: nameOfReminder,
+            addedByUserConstant: addedByUser,
+            reminderTypeConstant: reminderType.rawValue,
+            dateAddedConstant: dateAddedString,
+            currentIntervalStartDateConstant: currentIntervalStartDateString,
+            upcomingReminderTriggerDateConstant: upcomingReminderTriggerDateString
         ]
     }
     
-    // use this function to get the formatted date string from a Date struct
-    // useful for storing the date in
+    /**
+     Returns a string formatted into MM/dd/yy for the current timezone.
+     */
     private func getStringDateFrom(date: Date) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.setDateStyleAndTimeZone(dateStyle: .short, timeZone: .current)
