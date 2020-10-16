@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CustomAlertView: UIView {
+class AddReminderAlertView: UIView {
     
     // MARK: Object lifecycle
     override init(frame: CGRect) {

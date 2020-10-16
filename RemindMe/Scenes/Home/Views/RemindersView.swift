@@ -56,8 +56,7 @@ class RemindersView: UIView {
         
         addSubview(remindersTableView)
         
-        // setting constraints without constants
-        remindersTableView.setAndActivateConstraints(top: self.safeAreaLayoutGuide.topAnchor, bottom: self.safeAreaLayoutGuide.bottomAnchor, leading: self.leadingAnchor, trailing: self.trailingAnchor)
+        remindersTableView.setAndActivateConstraints(top: safeAreaLayoutGuide.topAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, leading: leadingAnchor, trailing: trailingAnchor, centerX: nil, centerY: nil)
         
     }
     

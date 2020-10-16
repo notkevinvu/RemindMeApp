@@ -8,9 +8,9 @@
 
 import UIKit
 
-class CustomAlertViewController: UIViewController {
+class AddReminderAlertController: UIViewController {
     
-    var contentView: CustomAlertView!
+    var contentView: AddReminderAlertView!
     
     // MARK: Object lifecycle
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -37,7 +37,7 @@ class CustomAlertViewController: UIViewController {
     
     // MARK: Setup
     private func setup() {
-        let view = CustomAlertView()
+        let view = AddReminderAlertView()
         contentView = view
     }
     

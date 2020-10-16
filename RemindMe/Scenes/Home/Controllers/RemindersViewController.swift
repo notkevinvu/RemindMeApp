@@ -196,7 +196,7 @@ class RemindersViewController: UIViewController {
     }
     
     @objc func testUserAuth() {
-        let customAlertVC = CustomAlertViewController()
+        let customAlertVC = AddReminderAlertController()
         customAlertVC.modalPresentationStyle = .overCurrentContext
         navigationController?.present(customAlertVC, animated: true, completion: nil)
     }

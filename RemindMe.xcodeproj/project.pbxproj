@@ -15,8 +15,8 @@
 		2577787B2521B9EE00A74FA7 /* RemindersTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2577787A2521B9EE00A74FA7 /* RemindersTableViewCell.swift */; };
 		257778D7252C45AB00A74FA7 /* DateComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257778D6252C45AB00A74FA7 /* DateComponents.swift */; };
 		257778DC252ECC7500A74FA7 /* UIView_Constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257778DB252ECC7500A74FA7 /* UIView_Constraints.swift */; };
-		257778EC2536BB1400A74FA7 /* CustomAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257778EB2536BB1400A74FA7 /* CustomAlertViewController.swift */; };
-		257778F42536BB3C00A74FA7 /* CustomAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257778F32536BB3C00A74FA7 /* CustomAlertView.swift */; };
+		257778EC2536BB1400A74FA7 /* AddReminderAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257778EB2536BB1400A74FA7 /* AddReminderAlertController.swift */; };
+		257778F42536BB3C00A74FA7 /* AddReminderAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257778F32536BB3C00A74FA7 /* AddReminderAlertView.swift */; };
 		25C9F197251D18390060DEF1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C9F196251D18390060DEF1 /* AppDelegate.swift */; };
 		25C9F199251D18390060DEF1 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C9F198251D18390060DEF1 /* SceneDelegate.swift */; };
 		25C9F19E251D18390060DEF1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 25C9F19C251D18390060DEF1 /* Main.storyboard */; };
@@ -56,8 +56,8 @@
 		2577787A2521B9EE00A74FA7 /* RemindersTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemindersTableViewCell.swift; sourceTree = "<group>"; };
 		257778D6252C45AB00A74FA7 /* DateComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateComponents.swift; sourceTree = "<group>"; };
 		257778DB252ECC7500A74FA7 /* UIView_Constraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView_Constraints.swift; sourceTree = "<group>"; };
-		257778EB2536BB1400A74FA7 /* CustomAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertViewController.swift; sourceTree = "<group>"; };
-		257778F32536BB3C00A74FA7 /* CustomAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAlertView.swift; sourceTree = "<group>"; };
+		257778EB2536BB1400A74FA7 /* AddReminderAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReminderAlertController.swift; sourceTree = "<group>"; };
+		257778F32536BB3C00A74FA7 /* AddReminderAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReminderAlertView.swift; sourceTree = "<group>"; };
 		25C9F193251D18390060DEF1 /* RemindMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RemindMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C9F196251D18390060DEF1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		25C9F198251D18390060DEF1 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -160,7 +160,7 @@
 		257778E02536B20A00A74FA7 /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
-				257778E82536B9CE00A74FA7 /* CustomAlert */,
+				257778E82536B9CE00A74FA7 /* AddReminderAlert */,
 				257778E12536B21C00A74FA7 /* Home */,
 			);
 			path = Scenes;
@@ -176,19 +176,19 @@
 			path = Home;
 			sourceTree = "<group>";
 		};
-		257778E82536B9CE00A74FA7 /* CustomAlert */ = {
+		257778E82536B9CE00A74FA7 /* AddReminderAlert */ = {
 			isa = PBXGroup;
 			children = (
 				257778E92536BA3100A74FA7 /* Views */,
 				257778EA2536BA3700A74FA7 /* Controllers */,
 			);
-			path = CustomAlert;
+			path = AddReminderAlert;
 			sourceTree = "<group>";
 		};
 		257778E92536BA3100A74FA7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				257778F32536BB3C00A74FA7 /* CustomAlertView.swift */,
+				257778F32536BB3C00A74FA7 /* AddReminderAlertView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -196,7 +196,7 @@
 		257778EA2536BA3700A74FA7 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				257778EB2536BB1400A74FA7 /* CustomAlertViewController.swift */,
+				257778EB2536BB1400A74FA7 /* AddReminderAlertController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -509,12 +509,12 @@
 			files = (
 				2577787B2521B9EE00A74FA7 /* RemindersTableViewCell.swift in Sources */,
 				257778DC252ECC7500A74FA7 /* UIView_Constraints.swift in Sources */,
-				257778F42536BB3C00A74FA7 /* CustomAlertView.swift in Sources */,
+				257778F42536BB3C00A74FA7 /* AddReminderAlertView.swift in Sources */,
 				253CA88925219E7E00838BAE /* ReminderItem.swift in Sources */,
 				253CA8842521973B00838BAE /* User.swift in Sources */,
 				257778D7252C45AB00A74FA7 /* DateComponents.swift in Sources */,
 				250DED452521AB9100BDE543 /* RemindersView.swift in Sources */,
-				257778EC2536BB1400A74FA7 /* CustomAlertViewController.swift in Sources */,
+				257778EC2536BB1400A74FA7 /* AddReminderAlertController.swift in Sources */,
 				25C9F197251D18390060DEF1 /* AppDelegate.swift in Sources */,
 				25C9F199251D18390060DEF1 /* SceneDelegate.swift in Sources */,
 				253CA87F251E349700838BAE /* RemindersViewController.swift in Sources */,
