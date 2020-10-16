@@ -196,9 +196,9 @@ class RemindersViewController: UIViewController {
     }
     
     @objc func testUserAuth() {
-        print(reminderItems.count, reminderItems.first?.nameOfReminder)
-        print(user.uid)
-        contentView.remindersTableView.reloadData()
+        let customAlertVC = CustomAlertViewController()
+        customAlertVC.modalPresentationStyle = .overCurrentContext
+        navigationController?.present(customAlertVC, animated: true, completion: nil)
     }
     
     // MARK: Reminders ref observer
