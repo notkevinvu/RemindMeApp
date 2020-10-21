@@ -80,7 +80,7 @@ class RemindersViewController: UIViewController {
     private func configureNavBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAddReminderBarButton))
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(testUserAuth))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(testPresentAlertVC))
     }
     
     // MARK: Auth methods
@@ -195,10 +195,12 @@ class RemindersViewController: UIViewController {
         present(ac, animated: true, completion: nil)
     }
     
-    @objc func testUserAuth() {
-        let customAlertVC = AddReminderAlertController()
-        customAlertVC.modalPresentationStyle = .overCurrentContext
-        navigationController?.present(customAlertVC, animated: true, completion: nil)
+    // MARK: Nav bar methods
+    @objc func testPresentAlertVC() {
+        let addReminderAlertVC = AddReminderAlertController()
+        let navVC = UINavigationController(rootViewController: addReminderAlertVC)
+        
+        navigationController?.present(navVC, animated: true, completion: nil)
     }
     
     // MARK: Reminders ref observer

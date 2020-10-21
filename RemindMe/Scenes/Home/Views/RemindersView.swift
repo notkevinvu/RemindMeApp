@@ -23,8 +23,6 @@ class RemindersView: UIView {
     
     lazy var remindersTableView: UITableView = {
         let table = UITableView()
-        table.layer.borderWidth = 1
-        table.layer.cornerRadius = 10
         
         // default inset extends past trailing edge; this creates a symmetric separator
         table.separatorInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
@@ -47,7 +45,8 @@ class RemindersView: UIView {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: coder)
+        setup()
     }
     
     // MARK: Setup
