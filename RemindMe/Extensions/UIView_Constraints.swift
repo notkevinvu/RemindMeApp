@@ -24,8 +24,8 @@ extension UIView {
                                    bottom: NSLayoutYAxisAnchor?,
                                    leading: NSLayoutXAxisAnchor?,
                                    trailing: NSLayoutXAxisAnchor?,
-                                   centerX: NSLayoutXAxisAnchor?,
-                                   centerY: NSLayoutYAxisAnchor?,
+                                   centerX: NSLayoutXAxisAnchor? = nil,
+                                   centerY: NSLayoutYAxisAnchor? = nil,
                                    padding: UIEdgeInsets = .zero,
                                    size: CGSize = .zero) {
         
