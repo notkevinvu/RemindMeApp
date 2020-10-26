@@ -12,7 +12,6 @@ class NameOfReminderCell: UITableViewCell {
     
     // MARK: Constants
     static let identifier = "nameOfReminderTextFieldCellID"
-    var fieldType: AddReminderFieldType = .nameOfReminderTextField
     
     // MARK: Properties/UI
     let textField: UITextField = {
