@@ -8,18 +8,18 @@
 
 import UIKit
 
+protocol AddReminderItemDelegate: class {
+    // TODO: add function to pass data back to RemindersViewController to
+    // add the reminder item
+}
+
 class AddReminderAlertController: UIViewController {
     
     // MARK: Properties
     var contentView: AddReminderAlertView!
     
-    private var orderedCells: [AddReminderFieldType] {
-        var orderedCells = [AddReminderFieldType]()
-        for fieldType in AddReminderFieldType.allCases {
-            orderedCells.append(fieldType)
-        }
-        return orderedCells
-    }
+    // TODO: set the delegate to be the reminders VC so we can access the user refs
+    weak var addReminderItemDelegate: AddReminderItemDelegate?
     
     // MARK: Object lifecycle
     init() {
@@ -53,13 +53,18 @@ class AddReminderAlertController: UIViewController {
     
     private func configureNavBar() {
         title = "Add Reminder"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelAndDismissSelf))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleTapCancelBarButton))
         navigationItem.leftBarButtonItem?.tintColor = .systemRed
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(handleTapDoneBarButton))
     }
     
     // MARK: Button methods
-    @objc func cancelAndDismissSelf() {
+    @objc func handleTapCancelBarButton() {
         dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func handleTapDoneBarButton() {
+        print("Tapped done button")
     }
     
 }
@@ -106,7 +111,7 @@ extension AddReminderAlertController: UITextFieldDelegate {
     }
     
     @objc func valueChanged(_ sender: UITextField) {
-        
+        print("Changed something")
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
