@@ -13,7 +13,6 @@ class RemindersViewController: UIViewController {
     
     // MARK: Constants
     let usersConstant = "users"
-    let usersByEmailConstant = "usersByEmail"
     
     // MARK: Properties
     
@@ -22,8 +21,7 @@ class RemindersViewController: UIViewController {
     var user: User = User(uid: "fakeID", email: "fakeEmail@example.com")
     lazy var usersRef = Database.database().reference(withPath: usersConstant)
     lazy var currentUserRef = usersRef.child(user.uid)
-    // TODO: Re-implement this if we want to denormalize our data
-//    lazy var usersByEmailRef = Database.database().reference(withPath: usersByEmailConstant)
+    var authHandle: AuthStateDidChangeListenerHandle?
     
     var reminderItems = [ReminderItem]()
     
@@ -42,12 +40,14 @@ class RemindersViewController: UIViewController {
     // MARK: View lifecycle
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        addAuthListener()
+        // this adds auth listener
+        authenticateUser()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-//        Auth.auth().removeStateDidChangeListener(authStateListener)
+        guard let authHandle = authHandle else { return }
+        Auth.auth().removeStateDidChangeListener(authHandle)
     }
     
     override func loadView() {
@@ -58,30 +58,32 @@ class RemindersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setTableViewDelegate()
-        configureNavBar()
+//        setTableViewDelegate()
+//        configureNavBar()
     }
     
     // MARK: Setup
-    private func setup() {
+    private func setupView() {
         let view = RemindersView()
         contentView = view
-        
-        signInOnLoad()
-        addRemindersRefObserver()
     }
     
     private func setTableViewDelegate() {
-//        contentView.setDelegate(to: self)
         contentView.remindersTableView.delegate = self
         contentView.remindersTableView.dataSource = self
     }
     
     private func configureNavBar() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAddReminderBarButton))
-        
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(testPresentAlertVC))
     }
+    
+    private func setup() {
+        setupView()
+        setTableViewDelegate()
+        configureNavBar()
+    }
+    
     
     // MARK: Auth methods
     private func signInOnLoad() {
@@ -94,36 +96,32 @@ class RemindersViewController: UIViewController {
             guard let user = authResult?.user else { return }
             
             self.user = User(authData: user)
+            self.addRemindersRefObserver()
         }
     }
     
-    private func addAuthListener() {
-        Auth.auth().addStateDidChangeListener { (auth, user) in
+    private func addAuthListener(completion: @escaping () -> ()) {
+        authHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
             guard let user = user else { return }
             
             self.user = User(authData: user)
-            
-            // TODO: Re-implement this if we potentially want to denormalize
-            // our data
-//            let currentUserEmailRef = self.usersByEmailRef.child(user.uid)
-//            currentUserEmailRef.observe(.value) { [weak self] (snapshot) in
-//                guard let self = self else { return }
-//
-//                if let value = snapshot.value as? String {
-//                    if value == "anonymous@anon.com" {
-//                        print("Currently anonymous")
-//                    }
-//                    // if the user uid key at currentUserEmailRef exists, do nothing
-//                    return
-//                } else {
-//                    // otherwise, if it doesn't exist, create the key/value there
-//                    if let userEmail = self.user.email {
-//                        currentUserEmailRef.setValue(userEmail)
-//                    } else {
-//                        currentUserEmailRef.setValue("anonymous@anon.com")
-//                    }
-//                }
-//            }
+            // completion is used to tell the caller that the user is authenticated
+            // and signed in - thus we can now observe the corresponding user's
+            // reminder items reference
+            completion()
+        }
+    }
+    
+    private func authenticateUser() {
+        // no user, we should login
+        if Auth.auth().currentUser == nil {
+            signInOnLoad()
+        }
+        addAuthListener { [weak self] in
+            guard let self = self else { return }
+            // authentication has completed, add the reference observer to get data
+            self.addRemindersRefObserver()
+            print("YAY")
         }
     }
     
@@ -179,7 +177,11 @@ class RemindersViewController: UIViewController {
              "bananas (2)"]
             */
             
-            let reminder = ReminderItem(nameOfReminder: nameText, addedByUser: "kevinvu59@gmail.com", reminderType: .routineTask, currentIntervalStartDate: Date(), upcomingReminderTriggerDate: Date())
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy/MM/dd"
+            guard let customDateTest = formatter.date(from: "2020/11/04") else { return }
+            
+            let reminder = ReminderItem(nameOfReminder: nameText, addedByUser: "kevinvu59@gmail.com", reminderType: .routineTask, currentIntervalStartDate: Date(), upcomingReminderTriggerDate: customDateTest)
             
             let reminderItemRef = self.currentUserRef.child(nameText.lowercased())
             
