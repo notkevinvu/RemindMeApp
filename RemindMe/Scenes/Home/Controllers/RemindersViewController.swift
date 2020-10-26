@@ -57,9 +57,6 @@ class RemindersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        setTableViewDelegate()
-//        configureNavBar()
     }
     
     // MARK: Setup
