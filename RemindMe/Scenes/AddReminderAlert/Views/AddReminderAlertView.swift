@@ -41,18 +41,3 @@ class AddReminderAlertView: UIView {
         reminderItemPropertiesTableView.setAndActivateConstraints(top: safeAreaLayoutGuide.topAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, leading: leadingAnchor, trailing: trailingAnchor, centerX: nil, centerY: nil)
     }
 }
-
-
-protocol AddReminderCellType {
-    var fieldType: AddReminderFieldType { get }
-}
-
-// MARK: Table view cell types enum
-enum AddReminderFieldType: Int, CaseIterable {
-    case nameOfReminderTextField = 0,
-         reminderTypeField, // UIPickerView?
-         reminderStartDateField, // UIDatePickerView
-         reminderIntervalTimeField, // UIPickerView
-         isOneTimeReminderField
-    
-}
