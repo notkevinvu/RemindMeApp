@@ -9,10 +9,14 @@
 import Foundation
 import Firebase
 
+// MARK: ReminderType enum
 enum ReminderType: String {
-    case routineTask, refillItem, generic
+    case routineTask = "Routine Task",
+         refillItem = "Refill item",
+         generic = "Generic"
 }
 
+// MARK: ReminderItem struct
 struct ReminderItem {
     
     // MARK: Constants

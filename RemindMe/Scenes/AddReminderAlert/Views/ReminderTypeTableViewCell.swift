@@ -12,13 +12,17 @@ class ReminderTypeTableViewCell: UITableViewCell {
     
     // MARK: Constants
     static let identifier = "reminderTypeCellID"
-    var fieldType: AddReminderFieldType = .reminderTypeField
     
+    // MARK: Properties
     var textField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.placeholder = "Reminder type"
         tf.textAlignment = .center
+        tf.font = UIFont.boldSystemFont(ofSize: 16)
+        
+        // hides blinking cursor
+        tf.tintColor = .clear
         
         return tf
     }()
@@ -77,6 +81,7 @@ class ReminderTypeTableViewCell: UITableViewCell {
     }
 }
 
+// MARK: Picker view delegate
 extension ReminderTypeTableViewCell: UIPickerViewDelegate, UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
@@ -87,24 +92,12 @@ extension ReminderTypeTableViewCell: UIPickerViewDelegate, UIPickerViewDataSourc
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        switch reminderTypes[row] {
-        case .routineTask:
-            return "Routine task"
-        case .refillItem:
-            return "Refill item"
-        default:
-            return "Generic"
-        }
+        let reminderType = reminderTypes[row]
+        return reminderType.rawValue
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        switch reminderTypes[row] {
-        case .routineTask:
-            textField.text = "Routine task"
-        case .refillItem:
-            textField.text = "Refill item"
-        default:
-            textField.text = "Generic"
-        }
+        let reminderType = reminderTypes[row]
+        textField.text = reminderType.rawValue
     }
 }
