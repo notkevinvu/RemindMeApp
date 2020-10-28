@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-class RemindersViewController: UIViewController {
+class RemindersViewController: UIViewController, AddReminderItemDelegate {
     
     // MARK: Constants
     let usersConstant = "users"
@@ -118,7 +118,6 @@ class RemindersViewController: UIViewController {
             guard let self = self else { return }
             // authentication has completed, add the reference observer to get data
             self.addRemindersRefObserver()
-            print("YAY")
         }
     }
     
@@ -147,45 +146,13 @@ class RemindersViewController: UIViewController {
                 // grab start date here
                 let nameText = nameTextField.text else { return }
             
-            /*
-             TODO: Either do reminder date calculation here or delegate to a helper class (e.g.:
-             
-             let reminderCalculator = ReminderDateCalculator()
-             reminderCalculator.findUpcomingDate(fromDate: Date(), withInterval: DateComponents)
-             )
-             
-             Also, check if there is already a reminder with the same name.
-             If so, find the # of duplicate results in the reminderItems array
-             and append something like (2) or (3) based on the # of dupes
-             
-             probably something like
-             
-             for reminder in reminderItems {
-                if reminder.nameOfReminder == nameText {
-                    numOfDupes += 1
-                } else {
-                    continue
-                }
-             }
-             
-             nameOfReminder: "\(nameText) \(numOfDupes + 1)"
-             
-             [e.g. if there was 1 dupe, the resulting name would be something like
-             "bananas (2)"]
-            */
-            
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy/MM/dd"
             guard let customDateTest = formatter.date(from: "2020/11/04") else { return }
             
-            let reminder = ReminderItem(nameOfReminder: nameText, addedByUser: "kevinvu59@gmail.com", reminderType: .routineTask, currentIntervalStartDate: Date(), upcomingReminderTriggerDate: customDateTest)
+            let reminder = ReminderItem(nameOfReminder: nameText, addedByUser: "kevinvu59@gmail.com", reminderType: .routineTask, currentIntervalStartDate: Date(), reminderIntervalTimeType: .weeks, reminderIntervalTimeValue: 2, upcomingReminderTriggerDate: customDateTest)
             
-            let reminderItemRef = self.currentUserRef.child(nameText.lowercased())
-            
-            self.reminderItems.append(reminder)
-            reminderItemRef.setValue(reminder.toDict())
-            
-            self.contentView.remindersTableView.reloadData()
+            self.saveReminderItem(reminder)
         }
         
         ac.addAction(cancelAction)
@@ -194,9 +161,27 @@ class RemindersViewController: UIViewController {
         present(ac, animated: true, completion: nil)
     }
     
-    // MARK: Nav bar methods
+    // MARK: Delegate methods
+    func saveReminderItem(_ reminderItem: ReminderItem) {
+        let reminderItemRef = self.currentUserRef.child(reminderItem.nameOfReminder.lowercased())
+        
+        /*
+         TODO: Either do reminder date calculation here or delegate to a helper class
+         
+         Check for dupes for reminders with the same name - if so, append a
+         number to it based on how many dupes there are
+         
+         e.g. "Reminder (1)" like in windows
+        */
+        
+        self.reminderItems.append(reminderItem)
+        reminderItemRef.setValue(reminderItem.toDict())
+    }
+    
+    // MARK: Navigation
     @objc func testPresentAlertVC() {
         let addReminderAlertVC = AddReminderAlertController()
+        addReminderAlertVC.addReminderItemDelegate = self
         let navVC = UINavigationController(rootViewController: addReminderAlertVC)
         
         navigationController?.present(navVC, animated: true, completion: nil)
@@ -212,8 +197,10 @@ class RemindersViewController: UIViewController {
                 guard
                     let snapshot = child as? DataSnapshot,
                     let reminderItem = ReminderItem(snapshot: snapshot)
-                else { return }
-                
+                else {
+                    print("Error getting reminder items")
+                    return
+                }
                 newReminderItems.append(reminderItem)
             }
             
@@ -236,7 +223,10 @@ extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
         
         let reminderItem = reminderItems[indexPath.row]
         
-        let model = RemindersTableViewCell.RemindersCellModel(nameOfReminder: reminderItem.nameOfReminder, timeRemaining: 5, reminderType: reminderItem.reminderType)
+        let model = RemindersTableViewCell.RemindersCellModel(
+            nameOfReminder  : reminderItem.nameOfReminder,
+            timeRemaining   : reminderItem.reminderIntervalTimeValue,
+            reminderType    : reminderItem.reminderType)
         
         cell.configureCell(withModel: model)
         /*
@@ -252,7 +242,6 @@ extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
     
 }
 
-
 // MARK: View delegate methods
 extension RemindersViewController: RemindersViewDelegate {
     
@@ -263,7 +252,6 @@ extension RemindersViewController: RemindersViewDelegate {
     func didTapRemoveReminderButton() {
         print("Tapped remove")
     }
-    
     
 }
 

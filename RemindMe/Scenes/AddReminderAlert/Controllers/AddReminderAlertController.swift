@@ -11,6 +11,7 @@ import UIKit
 protocol AddReminderItemDelegate: class {
     // TODO: add function to pass data back to RemindersViewController to
     // add the reminder item
+    func saveReminderItem(_ reminderItem: ReminderItem)
 }
 
 class AddReminderAlertController: UIViewController {
