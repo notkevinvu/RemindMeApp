@@ -13,6 +13,7 @@
 		253CA8842521973B00838BAE /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253CA8832521973B00838BAE /* User.swift */; };
 		253CA88925219E7E00838BAE /* ReminderItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253CA88825219E7E00838BAE /* ReminderItem.swift */; };
 		25558FD1253ABB28006642AF /* ReminderTypeTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25558FD0253ABB28006642AF /* ReminderTypeTableViewCell.swift */; };
+		25559014254BDF07006642AF /* IntervalStartDateTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25559013254BDF07006642AF /* IntervalStartDateTableViewCell.swift */; };
 		2577787B2521B9EE00A74FA7 /* RemindersTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2577787A2521B9EE00A74FA7 /* RemindersTableViewCell.swift */; };
 		257778D7252C45AB00A74FA7 /* DateComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257778D6252C45AB00A74FA7 /* DateComponents.swift */; };
 		257778DC252ECC7500A74FA7 /* UIView_Constraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257778DB252ECC7500A74FA7 /* UIView_Constraints.swift */; };
@@ -56,6 +57,7 @@
 		253CA8832521973B00838BAE /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		253CA88825219E7E00838BAE /* ReminderItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderItem.swift; sourceTree = "<group>"; };
 		25558FD0253ABB28006642AF /* ReminderTypeTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderTypeTableViewCell.swift; sourceTree = "<group>"; };
+		25559013254BDF07006642AF /* IntervalStartDateTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntervalStartDateTableViewCell.swift; sourceTree = "<group>"; };
 		2577787A2521B9EE00A74FA7 /* RemindersTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemindersTableViewCell.swift; sourceTree = "<group>"; };
 		257778D6252C45AB00A74FA7 /* DateComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateComponents.swift; sourceTree = "<group>"; };
 		257778DB252ECC7500A74FA7 /* UIView_Constraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView_Constraints.swift; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 				257778F32536BB3C00A74FA7 /* AddReminderAlertView.swift */,
 				25777912253956D100A74FA7 /* NameOfReminderCell.swift */,
 				25558FD0253ABB28006642AF /* ReminderTypeTableViewCell.swift */,
+				25559013254BDF07006642AF /* IntervalStartDateTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -518,6 +521,7 @@
 				257778F42536BB3C00A74FA7 /* AddReminderAlertView.swift in Sources */,
 				253CA88925219E7E00838BAE /* ReminderItem.swift in Sources */,
 				253CA8842521973B00838BAE /* User.swift in Sources */,
+				25559014254BDF07006642AF /* IntervalStartDateTableViewCell.swift in Sources */,
 				257778D7252C45AB00A74FA7 /* DateComponents.swift in Sources */,
 				25777913253956D100A74FA7 /* NameOfReminderCell.swift in Sources */,
 				250DED452521AB9100BDE543 /* RemindersView.swift in Sources */,

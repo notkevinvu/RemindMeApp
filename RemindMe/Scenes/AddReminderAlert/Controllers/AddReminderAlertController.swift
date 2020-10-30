@@ -19,6 +19,16 @@ class AddReminderAlertController: UIViewController {
     // MARK: Properties
     var contentView: AddReminderAlertView!
     
+    /*
+     TODO: Create a reminder item property here that gets updated with the
+     corresponding property when the textfields from each cell get updated.
+     This is so we have the corresponding values to eventually save the rmeinder
+     item. It is possible we might have to create individual values and update
+     those instead of creating a full ReminderItem and updating its values
+     (just so we don't have to initialize a fake/default reminder item
+     and update these)
+     */
+    
     // TODO: set the delegate to be the reminders VC so we can access the user refs
     weak var addReminderItemDelegate: AddReminderItemDelegate?
     
@@ -79,15 +89,23 @@ extension AddReminderAlertController: UITableViewDelegate, UITableViewDataSource
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        if indexPath.row == 0 {
+        let row = indexPath.row
+        
+        if row == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: NameOfReminderCell.identifier, for: indexPath) as! NameOfReminderCell
             cell.textField.delegate = self
             
             return cell
         }
 
-        if indexPath.row == 1 {
+        if row == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: ReminderTypeTableViewCell.identifier, for: indexPath) as! ReminderTypeTableViewCell
+            
+            return cell
+        }
+        
+        if row == 2 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: IntervalStartDateTableViewCell.identifier, for: indexPath) as! IntervalStartDateTableViewCell
             
             return cell
         }

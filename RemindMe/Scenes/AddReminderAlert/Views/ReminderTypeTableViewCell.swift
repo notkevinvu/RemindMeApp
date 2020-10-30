@@ -13,13 +13,15 @@ class ReminderTypeTableViewCell: UITableViewCell {
     // MARK: Constants
     static let identifier = "reminderTypeCellID"
     
+    
     // MARK: Properties
+    // this will contain the type picker view
     var textField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.placeholder = "Reminder type"
         tf.textAlignment = .center
-        tf.font = UIFont.boldSystemFont(ofSize: 16)
+        tf.font = UIFont.systemFont(ofSize: 16)
         
         // hides blinking cursor
         tf.tintColor = .clear
@@ -29,7 +31,6 @@ class ReminderTypeTableViewCell: UITableViewCell {
     
     lazy var reminderTypePickerView: UIPickerView = {
         let picker = UIPickerView()
-        picker.translatesAutoresizingMaskIntoConstraints = false
         
         return picker
     }()
@@ -47,6 +48,7 @@ class ReminderTypeTableViewCell: UITableViewCell {
         return tb
     }()
     
+    // data source for picker view
     private var reminderTypes: [ReminderType] = [.routineTask, .refillItem, .generic]
     
     // MARK: Object lifecycle
@@ -56,8 +58,7 @@ class ReminderTypeTableViewCell: UITableViewCell {
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
+        fatalError("init(coder:) is not implemented")
     }
     
     // MARK: Setup
@@ -75,7 +76,6 @@ class ReminderTypeTableViewCell: UITableViewCell {
     }
     
     // MARK: Utility methods
-    
     @objc func donePicker() {
         textField.resignFirstResponder()
     }

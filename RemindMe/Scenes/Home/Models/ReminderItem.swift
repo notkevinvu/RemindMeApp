@@ -28,6 +28,7 @@ enum ReminderIntervalTimeType: String {
 struct ReminderItem {
     
     // MARK: Constants
+    // used for strongly typing the keys from the resulting snapshot data
     private let nameOfReminderConstant = "nameOfReminder"
     private let addedByUserConstant = "addedByUser"
     private let reminderTypeConstant = "reminderType"

@@ -13,6 +13,7 @@ class NameOfReminderCell: UITableViewCell {
     // MARK: Constants
     static let identifier = "nameOfReminderTextFieldCellID"
     
+    
     // MARK: Properties/UI
     let textField: UITextField = {
         let tf = UITextField()
@@ -29,8 +30,7 @@ class NameOfReminderCell: UITableViewCell {
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
+        fatalError("init(coder:) is not implemented")
     }
     
     // MARK: Setup
