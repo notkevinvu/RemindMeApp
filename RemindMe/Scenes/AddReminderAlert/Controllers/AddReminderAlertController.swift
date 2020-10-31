@@ -28,6 +28,12 @@ class AddReminderAlertController: UIViewController {
      (just so we don't have to initialize a fake/default reminder item
      and update these)
      */
+    // we use these properties to eventually create the reminder item
+    // in our delegate method to actually save in the other VC since it
+    // already has the database references we need to save
+    var nameOfReminder: String?
+    var reminderType: ReminderType?
+    var intervalStartDate: Date?
     
     // TODO: set the delegate to be the reminders VC so we can access the user refs
     weak var addReminderItemDelegate: AddReminderItemDelegate?
@@ -93,19 +99,21 @@ extension AddReminderAlertController: UITableViewDelegate, UITableViewDataSource
         
         if row == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: NameOfReminderCell.identifier, for: indexPath) as! NameOfReminderCell
-            cell.textField.delegate = self
+            cell.didFinishEditingReminderNameDelegate = self
             
             return cell
         }
 
         if row == 1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: ReminderTypeTableViewCell.identifier, for: indexPath) as! ReminderTypeTableViewCell
+            cell.didFinishPickingReminderTypeDelegate = self
             
             return cell
         }
         
         if row == 2 {
             let cell = tableView.dequeueReusableCell(withIdentifier: IntervalStartDateTableViewCell.identifier, for: indexPath) as! IntervalStartDateTableViewCell
+            cell.didFinishPickingIntervalStartDateDelegate = self
             
             return cell
         }
@@ -123,20 +131,20 @@ extension AddReminderAlertController: UITableViewDelegate, UITableViewDataSource
     
 }
 
-// MARK: Text field delegate
-extension AddReminderAlertController: UITextFieldDelegate {
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.addTarget(self, action: #selector(valueChanged), for: .editingChanged)
+extension AddReminderAlertController: NameOfReminderCellDelegate {
+    func setReminderName(_ name: String) {
+        self.nameOfReminder = name
     }
-    
-    @objc func valueChanged(_ sender: UITextField) {
-        print("Changed something")
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
-    
 }
 
+extension AddReminderAlertController: ReminderTypeCellDelegate {
+    func setReminderType(_ reminderType: ReminderType) {
+        self.reminderType = reminderType
+    }
+}
+
+extension AddReminderAlertController: IntervalStartDateCellDelegate {
+    func setIntervalStartDate(_ date: Date) {
+        self.intervalStartDate = date
+    }
+}
