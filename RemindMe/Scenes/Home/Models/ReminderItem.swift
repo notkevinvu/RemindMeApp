@@ -11,7 +11,7 @@ import Firebase
 
 // MARK: ReminderType enum
 enum ReminderType: String {
-    case routineTask = "Routine Task",
+    case routineTask = "Routine task",
          refillItem = "Refill item",
          generic = "Generic"
 }
