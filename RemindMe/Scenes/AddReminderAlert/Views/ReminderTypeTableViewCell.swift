@@ -8,6 +8,10 @@
 
 import UIKit
 
+protocol ReminderTypeCellDelegate: class {
+    func setReminderType(_ reminderType: ReminderType)
+}
+
 class ReminderTypeTableViewCell: UITableViewCell {
     
     // MARK: Constants
@@ -15,6 +19,8 @@ class ReminderTypeTableViewCell: UITableViewCell {
     
     
     // MARK: Properties
+    weak var didFinishPickingReminderTypeDelegate: ReminderTypeCellDelegate?
+    
     // this will contain the type picker view
     lazy var textField: UITextField = {
         let tf = UITextField()
@@ -83,9 +89,11 @@ class ReminderTypeTableViewCell: UITableViewCell {
     }
 }
 
+// MARK: Text field delegate
 extension ReminderTypeTableViewCell: UITextFieldDelegate {
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         textField.text = reminderTypes.first?.rawValue
+        didFinishPickingReminderTypeDelegate?.setReminderType(reminderTypes.first!)
         return true
     }
 }
@@ -108,5 +116,6 @@ extension ReminderTypeTableViewCell: UIPickerViewDelegate, UIPickerViewDataSourc
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         let reminderType = reminderTypes[row]
         textField.text = reminderType.rawValue
+        didFinishPickingReminderTypeDelegate?.setReminderType(reminderTypes[row])
     }
 }
