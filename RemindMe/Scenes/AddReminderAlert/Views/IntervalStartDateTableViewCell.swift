@@ -8,6 +8,10 @@
 
 import UIKit
 
+protocol IntervalStartDateCellDelegate: class {
+    func setIntervalStartDate(_ date: Date)
+}
+
 class IntervalStartDateTableViewCell: UITableViewCell {
     
     // MARK: Constants
@@ -15,6 +19,8 @@ class IntervalStartDateTableViewCell: UITableViewCell {
     
     
     // MARK: UI Properties
+    weak var didFinishPickingIntervalStartDateDelegate: IntervalStartDateCellDelegate?
+    
     // this contains the date picker view
     lazy var textField: UITextField = {
         let tf = UITextField()
@@ -22,6 +28,7 @@ class IntervalStartDateTableViewCell: UITableViewCell {
         tf.placeholder = "Reminder start date"
         tf.textAlignment = .center
         tf.font = UIFont.systemFont(ofSize: 16)
+        tf.delegate = self
         
         tf.tintColor = .clear
         
@@ -44,6 +51,7 @@ class IntervalStartDateTableViewCell: UITableViewCell {
     lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
+        datePicker.addTarget(self, action: #selector(didChangeDatePickerValue), for: .valueChanged)
         if #available(iOS 13.4, *) {
             datePicker.preferredDatePickerStyle = .wheels
         } else {
@@ -80,19 +88,37 @@ class IntervalStartDateTableViewCell: UITableViewCell {
     }
     
     // MARK: Utility methods
+    private func getFormattedStringFromDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter.string(from: date)
+    }
+    
     @objc func handleCancelButtonTap() {
         // reset date picker - ideally, we want to reset this to whatever the previous date was
         datePicker.date = Date()
+        textField.text = ""
         textField.resignFirstResponder()
     }
     
     @objc func handleDoneButtonTap() {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        textField.text = formatter.string(from: datePicker.date)
+        textField.text = getFormattedStringFromDate(datePicker.date)
         // TODO: delegate method to send the date into the VC to set the reminder item
         // object's interval start date
         textField.resignFirstResponder()
     }
     
+    @objc func didChangeDatePickerValue(_ sender: UIDatePicker) {
+        textField.text = getFormattedStringFromDate(sender.date)
+    }
+    
+}
+
+// MARK: Text field delegate
+extension IntervalStartDateTableViewCell: UITextFieldDelegate {
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        let date = datePicker.date
+        didFinishPickingIntervalStartDateDelegate?.setIntervalStartDate(date)
+        return true
+    }
 }
