@@ -16,12 +16,13 @@ class ReminderTypeTableViewCell: UITableViewCell {
     
     // MARK: Properties
     // this will contain the type picker view
-    var textField: UITextField = {
+    lazy var textField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
         tf.placeholder = "Reminder type"
         tf.textAlignment = .center
         tf.font = UIFont.systemFont(ofSize: 16)
+        tf.delegate = self
         
         // hides blinking cursor
         tf.tintColor = .clear
@@ -31,6 +32,8 @@ class ReminderTypeTableViewCell: UITableViewCell {
     
     lazy var reminderTypePickerView: UIPickerView = {
         let picker = UIPickerView()
+        picker.delegate = self
+        picker.dataSource = self
         
         return picker
     }()
@@ -71,13 +74,19 @@ class ReminderTypeTableViewCell: UITableViewCell {
         
         textField.setAndActivateConstraints(top: safeAreaLayoutGuide.topAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, leading: nil, trailing: trailingAnchor, padding: .init(top: 0, left: 0, bottom: 0, right: 16), size: .init(width: (frame.width / 2), height: 0))
         
-        reminderTypePickerView.delegate = self
-        reminderTypePickerView.dataSource = self
     }
     
     // MARK: Utility methods
     @objc func donePicker() {
+        // TODO: call delegate method to pass the contents of textfield to the VC
         textField.resignFirstResponder()
+    }
+}
+
+extension ReminderTypeTableViewCell: UITextFieldDelegate {
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        textField.text = reminderTypes.first?.rawValue
+        return true
     }
 }
 

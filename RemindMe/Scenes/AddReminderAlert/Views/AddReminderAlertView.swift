@@ -8,10 +8,24 @@
 
 import UIKit
 
+// We use this implementation to override the intrinsic content size and
+// only have the table view be as tall as the sum of the cells' heights it contains
+class ResizingTableView: UITableView {
+    override var intrinsicContentSize: CGSize {
+        return self.contentSize
+    }
+    
+    override var contentSize: CGSize {
+        didSet {
+            self.invalidateIntrinsicContentSize()
+        }
+    }
+}
+
 class AddReminderAlertView: UIView {
     
-    let reminderItemPropertiesTableView: UITableView = {
-        let table = UITableView()
+    let reminderItemPropertiesTableView: ResizingTableView = {
+        let table = ResizingTableView()
         table.backgroundColor = .systemBackground
         table.isUserInteractionEnabled = true
         
@@ -38,6 +52,6 @@ class AddReminderAlertView: UIView {
         backgroundColor = .white
         
         addSubview(reminderItemPropertiesTableView)
-        reminderItemPropertiesTableView.setAndActivateConstraints(top: safeAreaLayoutGuide.topAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, leading: leadingAnchor, trailing: trailingAnchor, centerX: nil, centerY: nil)
+        reminderItemPropertiesTableView.setAndActivateConstraints(top: safeAreaLayoutGuide.topAnchor, bottom: nil, leading: leadingAnchor, trailing: trailingAnchor, centerX: nil, centerY: nil)
     }
 }
