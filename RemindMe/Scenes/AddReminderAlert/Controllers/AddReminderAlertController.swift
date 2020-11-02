@@ -89,38 +89,33 @@ class AddReminderAlertController: UIViewController {
 // MARK: Table View methods
 extension AddReminderAlertController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return orderedCells.count
-        return 8
+        return 6
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let row = indexPath.row
         
-        if row == 0 {
+        // manual ordering of cells
+        
+        switch row {
+        case 0:
             let cell = tableView.dequeueReusableCell(withIdentifier: NameOfReminderCell.identifier, for: indexPath) as! NameOfReminderCell
             cell.didFinishEditingReminderNameDelegate = self
-            
             return cell
-        }
-
-        if row == 1 {
+        case 1:
             let cell = tableView.dequeueReusableCell(withIdentifier: ReminderTypeTableViewCell.identifier, for: indexPath) as! ReminderTypeTableViewCell
             cell.didFinishPickingReminderTypeDelegate = self
-            
             return cell
-        }
-        
-        if row == 2 {
+        case 2:
             let cell = tableView.dequeueReusableCell(withIdentifier: IntervalStartDateTableViewCell.identifier, for: indexPath) as! IntervalStartDateTableViewCell
             cell.didFinishPickingIntervalStartDateDelegate = self
-            
+            return cell
+        default:
+            let cell = UITableViewCell()
+            cell.textLabel?.text = "Default cell"
             return cell
         }
-        
-        let cell = UITableViewCell()
-        cell.textLabel?.text = "Default cell"
-        return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -131,6 +126,7 @@ extension AddReminderAlertController: UITableViewDelegate, UITableViewDataSource
     
 }
 
+// MARK: Cell delegates
 extension AddReminderAlertController: NameOfReminderCellDelegate {
     func setReminderName(_ name: String) {
         self.nameOfReminder = name
