@@ -13,7 +13,11 @@ class RemindersTableViewCell: UITableViewCell {
     // MARK: Properties
     static let cellID = "RemindersTableViewCell"
     
-    private var nameOfReminder: String?
+    private var nameOfReminder: String? {
+        didSet {
+            textLabel?.text = nameOfReminder
+        }
+    }
     private var timeRemaining: String?
     private var reminderType: String?
     
@@ -50,17 +54,7 @@ class RemindersTableViewCell: UITableViewCell {
     
     func configureCell(withModel model: RemindersTableViewCell.RemindersCellModel) {
         self.nameOfReminder = model.nameOfReminder
-        textLabel?.text = nameOfReminder
-        
-        switch model.reminderType {
-        case ReminderType.routineTask:
-            self.reminderType = "Routine Task"
-        case ReminderType.refillItem:
-            self.reminderType = "Item Refill"
-        default:
-            self.reminderType = "Reminder"
-        }
-        detailTextLabel?.text = reminderType
+        detailTextLabel?.text = model.reminderType.rawValue
     }
 
 }
