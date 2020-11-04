@@ -18,7 +18,7 @@ class IntervalStartDateTableViewCell: UITableViewCell {
     static let identifier = "IntervalStartDateTableViewCell"
     
     
-    // MARK: UI Properties
+    // MARK: Properties
     weak var didFinishPickingIntervalStartDateDelegate: IntervalStartDateCellDelegate?
     
     // this contains the date picker view
