@@ -17,10 +17,10 @@ enum ReminderType: String {
 }
 
 enum ReminderIntervalTimeType: String {
-    case years = "years",
-         months = "months",
-         weeks = "weeks",
-         days = "days",
+    case days,
+         weeks,
+         months,
+         years,
          error = "Error getting interval type"
 }
 
