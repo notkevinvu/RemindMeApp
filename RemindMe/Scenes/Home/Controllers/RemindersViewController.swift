@@ -144,7 +144,8 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
                 let self = self,
                 let nameTextField = ac.textFields?.first,
                 // grab start date here
-                let nameText = nameTextField.text else { return }
+                let nameText = nameTextField.text,
+                !nameText.isEmpty else { return }
             
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy/MM/dd"
@@ -163,7 +164,8 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     
     // MARK: Delegate methods
     func saveReminderItem(_ reminderItem: ReminderItem) {
-        let reminderItemRef = self.currentUserRef.child(reminderItem.nameOfReminder.lowercased())
+        
+        let autoIDReminderItemRef = currentUserRef.childByAutoId()
         
         /*
          TODO: Either do reminder date calculation here or delegate to a helper class
@@ -172,10 +174,19 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
          number to it based on how many dupes there are
          
          e.g. "Reminder (1)" like in windows
+         
+         var numberOfDuplicates = 0
+         for item in reminderItems {
+            if item.nameOfReminder == reminderItem.nameOfReminder {
+                numberOfDuplicates += 1
+            }
+         }
+         if numberOfDuplicates > 0 {
+            reminderItem.nameOfReminder += " (\(numberOfDuplicates))"
         */
         
         self.reminderItems.append(reminderItem)
-        reminderItemRef.setValue(reminderItem.toDict())
+        autoIDReminderItemRef.setValue(reminderItem.toDict())
     }
     
     // MARK: Navigation
