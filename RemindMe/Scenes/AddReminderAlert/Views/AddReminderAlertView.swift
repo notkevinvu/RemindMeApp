@@ -32,6 +32,7 @@ class AddReminderAlertView: UIView {
         table.register(NameOfReminderCell.self, forCellReuseIdentifier: NameOfReminderCell.identifier)
         table.register(ReminderTypeTableViewCell.self, forCellReuseIdentifier: ReminderTypeTableViewCell.identifier)
         table.register(IntervalStartDateTableViewCell.self, forCellReuseIdentifier: IntervalStartDateTableViewCell.identifier)
+        table.register(IntervalTimeTableViewCell.self, forCellReuseIdentifier: IntervalTimeTableViewCell.identifier)
         
         return table
     }()

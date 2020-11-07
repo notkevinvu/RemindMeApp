@@ -20,6 +20,11 @@ class IntervalStartDateTableViewCell: UITableViewCell {
     
     // MARK: Properties
     weak var didFinishPickingIntervalStartDateDelegate: IntervalStartDateCellDelegate?
+    // use this date as default start point for textfield date, and update when
+    // the user scrolls through picker view, while also keeping placeholder in
+    // text field
+    var currentDate: Date = Date()
+    var previousConfirmedDate: Date = Date()
     
     // this contains the date picker view
     lazy var textField: UITextField = {
@@ -29,7 +34,7 @@ class IntervalStartDateTableViewCell: UITableViewCell {
         tf.textAlignment = .center
         tf.font = UIFont.systemFont(ofSize: 16)
         tf.delegate = self
-        
+        // remove blinking cursor
         tf.tintColor = .clear
         
         // toolbar to confirm after using date picker
@@ -37,7 +42,8 @@ class IntervalStartDateTableViewCell: UITableViewCell {
         toolbar.barStyle = .default
         toolbar.sizeToFit()
         
-        let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancelButtonTap))
+        let cancelButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(handleCancelButtonTap))
+        cancelButton.tintColor = .systemRed
         let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleDoneButtonTap))
         
@@ -51,6 +57,7 @@ class IntervalStartDateTableViewCell: UITableViewCell {
     lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
+        datePicker.minimumDate = Date()
         datePicker.addTarget(self, action: #selector(didChangeDatePickerValue), for: .valueChanged)
         if #available(iOS 13.4, *) {
             datePicker.preferredDatePickerStyle = .wheels
@@ -95,16 +102,17 @@ class IntervalStartDateTableViewCell: UITableViewCell {
     }
     
     @objc func handleCancelButtonTap() {
-        // reset date picker - ideally, we want to reset this to whatever the previous date was
-        datePicker.date = Date()
-        textField.text = ""
+        // we set both dates back to the previous confirmed date so that when
+        // the textfield's shouldEndEditing method gets called,
+        datePicker.date = previousConfirmedDate
+        currentDate = previousConfirmedDate
+        textField.text = getFormattedStringFromDate(currentDate)
         textField.resignFirstResponder()
     }
     
     @objc func handleDoneButtonTap() {
+        // dates will be set in textFieldShouldEndEditing,
         textField.text = getFormattedStringFromDate(datePicker.date)
-        // TODO: delegate method to send the date into the VC to set the reminder item
-        // object's interval start date
         textField.resignFirstResponder()
     }
     
@@ -116,9 +124,15 @@ class IntervalStartDateTableViewCell: UITableViewCell {
 
 // MARK: Text field delegate
 extension IntervalStartDateTableViewCell: UITextFieldDelegate {
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        textField.text = getFormattedStringFromDate(currentDate)
+        return true
+    }
+    
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        let date = datePicker.date
-        didFinishPickingIntervalStartDateDelegate?.setIntervalStartDate(date)
+        currentDate = datePicker.date
+        previousConfirmedDate = datePicker.date
+        didFinishPickingIntervalStartDateDelegate?.setIntervalStartDate(currentDate)
         return true
     }
 }

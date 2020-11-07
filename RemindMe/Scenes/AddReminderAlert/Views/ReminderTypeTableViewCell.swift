@@ -10,6 +10,7 @@ import UIKit
 
 protocol ReminderTypeCellDelegate: class {
     func setReminderType(_ reminderType: ReminderType)
+    func didTapCancelButton()
 }
 
 class ReminderTypeTableViewCell: UITableViewCell {
@@ -49,6 +50,8 @@ class ReminderTypeTableViewCell: UITableViewCell {
         tb.barStyle = .default
         tb.sizeToFit()
         
+        let cancelButton = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(didTapCancelButtonPicker))
+        cancelButton.tintColor = .systemRed
         let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(donePicker))
         let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
@@ -86,6 +89,11 @@ class ReminderTypeTableViewCell: UITableViewCell {
     @objc func donePicker() {
         // TODO: call delegate method to pass the contents of textfield to the VC
         textField.resignFirstResponder()
+    }
+    
+    @objc func didTapCancelButtonPicker() {
+        textField.text = ""
+        didFinishPickingReminderTypeDelegate?.didTapCancelButton()
     }
 }
 

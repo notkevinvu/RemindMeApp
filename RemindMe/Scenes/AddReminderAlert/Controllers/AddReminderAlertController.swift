@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 protocol AddReminderItemDelegate: class {
     // TODO: add function to pass data back to RemindersViewController to
@@ -16,7 +17,7 @@ protocol AddReminderItemDelegate: class {
 
 class AddReminderAlertController: UIViewController {
     
-    // MARK: Properties
+    // MARK: - Properties
     var contentView: AddReminderAlertView!
     
     /*
@@ -31,14 +32,16 @@ class AddReminderAlertController: UIViewController {
     // we use these properties to eventually create the reminder item
     // in our delegate method to actually save in the other VC since it
     // already has the database references we need to save
-    var nameOfReminder: String?
-    var reminderType: ReminderType?
-    var intervalStartDate: Date?
+    var nameOfReminder: String? = nil
+    var reminderType: ReminderType? = nil
+    var intervalStartDate: Date? = nil
+    var intervalTimeType: ReminderIntervalTimeType? = nil
+    var intervalTimeValue: Int? = nil
     
     // TODO: set the delegate to be the reminders VC so we can access the user refs
     weak var addReminderItemDelegate: AddReminderItemDelegate?
     
-    // MARK: Object lifecycle
+    // MARK: - Object lifecycle
     init() {
         super.init(nibName: nil, bundle: nil)
         setup()
@@ -49,7 +52,7 @@ class AddReminderAlertController: UIViewController {
         setup()
     }
     
-    // MARK: View lifecycle
+    // MARK: - View lifecycle
     override func loadView() {
         super.loadView()
         view = contentView
@@ -60,7 +63,7 @@ class AddReminderAlertController: UIViewController {
         configureNavBar()
     }
     
-    // MARK: Setup
+    // MARK: - Setup
     private func setup() {
         let view = AddReminderAlertView()
         contentView = view
@@ -75,21 +78,60 @@ class AddReminderAlertController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(handleTapDoneBarButton))
     }
     
-    // MARK: Button methods
+    // MARK: - Button methods
     @objc func handleTapCancelBarButton() {
         dismiss(animated: true, completion: nil)
     }
     
     @objc func handleTapDoneBarButton() {
-        print("Tapped done button")
+        guard
+            let nameOfReminder = nameOfReminder,
+            let reminderType = reminderType,
+            let intervalStartDate = intervalStartDate,
+            let intervalTimeType = intervalTimeType,
+            let intervalTimeValue = intervalTimeValue,
+            let currentUser = Auth.auth().currentUser
+        else { return }
+        
+        var calendarComponent: Calendar.Component
+        
+        switch intervalTimeType {
+        case .days:
+            calendarComponent = .day
+        case .weeks:
+            calendarComponent = .weekOfYear
+        case .months:
+            calendarComponent = .month
+        case .years:
+            calendarComponent = .year
+        default:
+            return
+        }
+        
+        var components = DateComponents()
+        components.setValue(intervalTimeValue, for: calendarComponent)
+        guard let upcomingIntervalTriggerDate = Calendar.current.date(byAdding: components, to: intervalStartDate) else { return }
+        
+        let currentUserIdentifier = currentUser.email ?? currentUser.uid
+        let reminderItem = ReminderItem(nameOfReminder: nameOfReminder,
+                                        addedByUser: currentUserIdentifier,
+                                        reminderType: reminderType,
+                                        dateAdded: Date(),
+                                        currentIntervalStartDate: intervalStartDate,
+                                        reminderIntervalTimeType: intervalTimeType,
+                                        reminderIntervalTimeValue: intervalTimeValue,
+                                        upcomingReminderTriggerDate: upcomingIntervalTriggerDate)
+            
+        addReminderItemDelegate?.saveReminderItem(reminderItem)
+        dismiss(animated: true, completion: nil)
     }
     
 }
 
-// MARK: Table View methods
+// MARK: - Table View methods
 extension AddReminderAlertController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 6
+        return 4
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -111,6 +153,10 @@ extension AddReminderAlertController: UITableViewDelegate, UITableViewDataSource
             let cell = tableView.dequeueReusableCell(withIdentifier: IntervalStartDateTableViewCell.identifier, for: indexPath) as! IntervalStartDateTableViewCell
             cell.didFinishPickingIntervalStartDateDelegate = self
             return cell
+        case 3:
+            let cell = tableView.dequeueReusableCell(withIdentifier: IntervalTimeTableViewCell.identifier, for: indexPath) as! IntervalTimeTableViewCell
+            cell.didFinishPickingIntervalTimeDelegate = self
+            return cell
         default:
             let cell = UITableViewCell()
             cell.textLabel?.text = "Default cell"
@@ -126,7 +172,7 @@ extension AddReminderAlertController: UITableViewDelegate, UITableViewDataSource
     
 }
 
-// MARK: Cell delegates
+// MARK: - Cell delegates
 extension AddReminderAlertController: NameOfReminderCellDelegate {
     func setReminderName(_ name: String) {
         self.nameOfReminder = name
@@ -143,4 +189,17 @@ extension AddReminderAlertController: IntervalStartDateCellDelegate {
     func setIntervalStartDate(_ date: Date) {
         self.intervalStartDate = date
     }
+}
+
+extension AddReminderAlertController: IntervalTimeCellDelegate {
+    func setIntervalTime(type: ReminderIntervalTimeType, value: Int) {
+        intervalTimeType = type
+        intervalTimeValue = value
+    }
+    
+    func didTapCancelButton() {
+        intervalTimeType = nil
+        intervalTimeValue = nil
+    }
+    
 }

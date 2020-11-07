@@ -10,6 +10,7 @@ import UIKit
 
 protocol IntervalTimeCellDelegate: class {
     func setIntervalTime(type: ReminderIntervalTimeType, value: Int)
+    func didTapCancelButton()
 }
 
 class IntervalTimeTableViewCell: UITableViewCell {
@@ -36,6 +37,7 @@ class IntervalTimeTableViewCell: UITableViewCell {
         toolbar.sizeToFit()
         
         let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancelButtonTap))
+        cancelButton.tintColor = .systemRed
         let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(handleDoneButtonTap))
         
@@ -70,26 +72,30 @@ class IntervalTimeTableViewCell: UITableViewCell {
         textLabel?.text = "Interval time:"
         selectionStyle = .none
         contentView.addSubview(textField)
-        textField.inputAccessoryView = intervalTimePicker
+        textField.inputView = intervalTimePicker
         
         textField.setAndActivateConstraints(top: safeAreaLayoutGuide.topAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, leading: nil, trailing: trailingAnchor, padding: .init(top: 0, left: 0, bottom: 0, right: 16), size: .init(width: (frame.width/2), height: 0))
     }
     
     // MARK: - Toolbar button methods
     @objc func handleCancelButtonTap() {
-        // TODO: Reset textfield
         textField.text = ""
+        didFinishPickingIntervalTimeDelegate?.didTapCancelButton()
         textField.resignFirstResponder()
     }
     
     @objc func handleDoneButtonTap() {
+        // only need to resign text field - delegate method for setting
+        // interval time is done through picker view didSelectRow method
         textField.resignFirstResponder()
     }
 }
 
 // MARK: - Textfield delegate
 extension IntervalTimeTableViewCell: UITextFieldDelegate {
-    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.text = "\(discreteTimeUnits[0]) \(intervalTimeTypes[0])"
+    }
 }
 
 // MARK: - Pickerview delegate
@@ -112,6 +118,14 @@ extension IntervalTimeTableViewCell: UIPickerViewDelegate, UIPickerViewDataSourc
         } else {
             return intervalTimeTypes[row].rawValue
         }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        let intervalTimeValue = discreteTimeUnits[pickerView.selectedRow(inComponent: 0)]
+        let intervalTimeType = intervalTimeTypes[pickerView.selectedRow(inComponent: 1)]
+        
+        textField.text = "\(intervalTimeValue) \(intervalTimeType.rawValue)"
+        didFinishPickingIntervalTimeDelegate?.setIntervalTime(type: intervalTimeType, value: intervalTimeValue)
     }
     
     

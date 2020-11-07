@@ -24,7 +24,8 @@ class NameOfReminderCell: UITableViewCell {
     lazy var textField: UITextField = {
         let tf = UITextField()
         tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.placeholder = "Name of reminder..."
+        tf.placeholder = "Name of reminder"
+        tf.textAlignment = .center
         tf.delegate = self
         return tf
     }()
@@ -41,8 +42,9 @@ class NameOfReminderCell: UITableViewCell {
     
     // MARK: Setup
     private func setup() {
+        textLabel?.text = "Name of Reminder:"
         contentView.addSubview(textField)
-        textField.setAndActivateConstraints(top: topAnchor, bottom: bottomAnchor, leading: leadingAnchor, trailing: trailingAnchor, padding: .init(top: 0, left: 16, bottom: 0, right: 16))
+        textField.setAndActivateConstraints(top: topAnchor, bottom: bottomAnchor, leading: nil, trailing: trailingAnchor, padding: .init(top: 0, left: 0, bottom: 0, right: 16), size: .init(width: (frame.width/2), height: 0))
     }
 }
 
@@ -56,7 +58,11 @@ extension NameOfReminderCell: UITextFieldDelegate {
     }
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        guard let nameOfReminder = textField.text else { return true }
+        guard
+            let nameOfReminder = textField.text,
+            !nameOfReminder.isEmpty
+        else { return true }
+        
         didFinishEditingReminderNameDelegate?.setReminderName(nameOfReminder)
         return true
     }
