@@ -37,7 +37,6 @@ struct ReminderItem {
     private let reminderIntervalTimeTypeConstant = "reminderIntervalTimeTypeConstant"
     private let reminderIntervalTimeValueConstant = "reminderIntervalValueConstant"
     private let upcomingReminderTriggerDateConstant = "upcomingReminderTriggerDate"
-    private let isOneTimeReminderConstant = "isOneTimeReminder"
     
     // MARK: Properties
     let ref: DatabaseReference?
