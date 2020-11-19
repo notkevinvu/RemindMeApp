@@ -26,11 +26,13 @@ class RemindersTableViewCell: UITableViewCell {
         var nameOfReminder: String
         var timeRemaining: String
         var reminderType: ReminderType
+        var timeStringUntilTriggerDate: String
         
-        init(nameOfReminder: String, timeRemaining: Int, reminderType: ReminderType) {
+        init(nameOfReminder: String, timeRemaining: Int, reminderType: ReminderType, timeStringUntilTriggerDate: String) {
             self.nameOfReminder = nameOfReminder
             self.timeRemaining = String(timeRemaining)
             self.reminderType = reminderType
+            self.timeStringUntilTriggerDate = timeStringUntilTriggerDate
         }
     }
     
@@ -54,7 +56,7 @@ class RemindersTableViewCell: UITableViewCell {
     
     func configureCell(withModel model: RemindersTableViewCell.RemindersCellModel) {
         self.nameOfReminder = model.nameOfReminder
-        detailTextLabel?.text = model.reminderType.rawValue
+        detailTextLabel?.text = "\(model.reminderType.rawValue) - \(model.timeStringUntilTriggerDate)"
     }
 
 }

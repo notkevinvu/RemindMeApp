@@ -71,8 +71,8 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     }
     
     private func configureNavBar() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAddReminderBarButton))
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(testPresentAlertVC))
+        navigationItem.title = "Reminders"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(presentAddReminderSheetVC))
     }
     
     private func setup() {
@@ -83,17 +83,14 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     
     
     // MARK: Auth methods
-    private func signInOnLoad() {
+    private func signInAnonymously() {
         Auth.auth().signInAnonymously { (authResult, error) in
             if let error = error {
                 print(error.localizedDescription)
                 return
             }
-            
             guard let user = authResult?.user else { return }
-            
             self.user = User(authData: user)
-            self.addRemindersRefObserver()
         }
     }
     
@@ -112,7 +109,7 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     private func authenticateUser() {
         // no user, we should login
         if Auth.auth().currentUser == nil {
-            signInOnLoad()
+            signInAnonymously()
         }
         addAuthListener { [weak self] in
             guard let self = self else { return }
@@ -121,84 +118,40 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
         }
     }
     
-    // MARK: Firebase - Add item
-    
-    @objc func didTapAddReminderBarButton() {
-        let ac = UIAlertController(title: "Reminder",
-                                   message: "Add a reminder",
-                                   preferredStyle: .alert)
-        
-        // 0 - name of reminder
-        // 1 - user (should eventually be email of user)
-        // 2 - reminder type (should be a UIPickerView eventually)
-        // 3 - date added (current date)
-        // 4 - current interval start date (just use current date)
-        ac.addTextField()
-        ac.textFields?.first?.placeholder = "Name of reminder"
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-        
-        let saveAction = UIAlertAction(title: "Save", style: .default) { [weak self] (action) in
-            
-            guard
-                let self = self,
-                let nameTextField = ac.textFields?.first,
-                // grab start date here
-                let nameText = nameTextField.text,
-                !nameText.isEmpty else { return }
-            
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy/MM/dd"
-            guard let customDateTest = formatter.date(from: "2020/11/04") else { return }
-            
-            let reminder = ReminderItem(nameOfReminder: nameText, addedByUser: "kevinvu59@gmail.com", reminderType: .routineTask, currentIntervalStartDate: Date(), reminderIntervalTimeType: .weeks, reminderIntervalTimeValue: 2, upcomingReminderTriggerDate: customDateTest)
-            
-            self.saveReminderItem(reminder)
-        }
-        
-        ac.addAction(cancelAction)
-        ac.addAction(saveAction)
-        
-        present(ac, animated: true, completion: nil)
-    }
-    
     // MARK: Delegate methods
     func saveReminderItem(_ reminderItem: ReminderItem) {
-        
         let autoIDReminderItemRef = currentUserRef.childByAutoId()
+        var newReminderItem = reminderItem
         
-        /*
-         TODO: Either do reminder date calculation here or delegate to a helper class
-         
-         Check for dupes for reminders with the same name - if so, append a
-         number to it based on how many dupes there are
-         
-         e.g. "Reminder (1)" like in windows
-         
-         var numberOfDuplicates = 0
-         for item in reminderItems {
-            if item.nameOfReminder == reminderItem.nameOfReminder {
+        let numberOfDuplicates = checkNumberOfDuplicateNames(forName: reminderItem.nameOfReminder)
+        if numberOfDuplicates > 0 {
+            newReminderItem.nameOfReminder.append(" (\(numberOfDuplicates))")
+        }
+        
+        self.reminderItems.append(newReminderItem)
+        autoIDReminderItemRef.setValue(newReminderItem.toDict())
+    }
+    
+    // MARK: - Utility methods
+    private func checkNumberOfDuplicateNames(forName name: String) -> Int {
+        var numberOfDuplicates = 0
+        for item in reminderItems {
+            if name == item.nameOfReminder {
                 numberOfDuplicates += 1
             }
-         }
-         if numberOfDuplicates > 0 {
-            reminderItem.nameOfReminder += " (\(numberOfDuplicates))"
-        */
-        
-        self.reminderItems.append(reminderItem)
-        autoIDReminderItemRef.setValue(reminderItem.toDict())
+        }
+        return numberOfDuplicates
     }
     
     // MARK: Navigation
-    @objc func testPresentAlertVC() {
+    @objc func presentAddReminderSheetVC() {
         let addReminderAlertVC = AddReminderAlertController()
         addReminderAlertVC.addReminderItemDelegate = self
         let navVC = UINavigationController(rootViewController: addReminderAlertVC)
-        
         navigationController?.present(navVC, animated: true, completion: nil)
     }
     
-    // MARK: Reminders ref observer
+    // MARK: Reminder items ref observer
     
     private func addRemindersRefObserver() {
         currentUserRef.observe(.value) { (snapshot) in
@@ -222,7 +175,7 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     
 }
 
-// MARK: Table view methods
+// MARK: - Table view methods
 extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -234,35 +187,37 @@ extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
         
         let reminderItem = reminderItems[indexPath.row]
         
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = [.year, .month, .weekOfMonth, .day]
+        formatter.includesTimeRemainingPhrase = true
+        let timeStringUntilTriggerDate = formatter.string(from: Date(), to: reminderItem.upcomingReminderTriggerDate) ?? "Error formatting remaining time."
+        
         let model = RemindersTableViewCell.RemindersCellModel(
             nameOfReminder  : reminderItem.nameOfReminder,
             timeRemaining   : reminderItem.reminderIntervalTimeValue,
-            reminderType    : reminderItem.reminderType)
+            reminderType    : reminderItem.reminderType,
+            timeStringUntilTriggerDate: timeStringUntilTriggerDate
+        )
         
         cell.configureCell(withModel: model)
-        /*
-         TODO: Add a date variable to ReminderItem and delegate checking
-         the time remaining to a separate model/worker
-         
-         This needs to check the stored dateinterval and/or the remaining time
-         so that the remaining time can be updated and presented as a string
-         */
-        
+
         return cell
     }
     
-}
-
-// MARK: View delegate methods
-extension RemindersViewController: RemindersViewDelegate {
-    
-    func didTapAddReminderButton() {
-        print("Tapped add")
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // TODO: Maybe selecting a row will take you to a detail screen
+        // showing all the details of the reminder?
     }
     
-    func didTapRemoveReminderButton() {
-        print("Tapped remove")
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let row = indexPath.row
+            let reminderItem = reminderItems[row]
+            reminderItem.ref?.removeValue()
+            tableView.reloadRows(at: [indexPath], with: .left)
+            reminderItems.remove(at: row)
+        }
     }
-    
 }
 

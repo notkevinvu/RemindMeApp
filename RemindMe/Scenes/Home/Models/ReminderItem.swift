@@ -42,7 +42,7 @@ struct ReminderItem {
     let ref: DatabaseReference?
     let key: String
     
-    let nameOfReminder: String
+    var nameOfReminder: String
     let addedByUser: String
     let reminderType: ReminderType
     let dateAdded: Date
