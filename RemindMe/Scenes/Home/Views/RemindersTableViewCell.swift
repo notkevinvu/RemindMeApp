@@ -13,7 +13,11 @@ class RemindersTableViewCell: UITableViewCell {
     // MARK: Properties
     static let cellID = "RemindersTableViewCell"
     
-    private var nameOfReminder: String?
+    private var nameOfReminder: String? {
+        didSet {
+            textLabel?.text = nameOfReminder
+        }
+    }
     private var timeRemaining: String?
     private var reminderType: String?
     
@@ -22,11 +26,13 @@ class RemindersTableViewCell: UITableViewCell {
         var nameOfReminder: String
         var timeRemaining: String
         var reminderType: ReminderType
+        var timeStringUntilTriggerDate: String
         
-        init(nameOfReminder: String, timeRemaining: Int, reminderType: ReminderType) {
+        init(nameOfReminder: String, timeRemaining: Int, reminderType: ReminderType, timeStringUntilTriggerDate: String) {
             self.nameOfReminder = nameOfReminder
             self.timeRemaining = String(timeRemaining)
             self.reminderType = reminderType
+            self.timeStringUntilTriggerDate = timeStringUntilTriggerDate
         }
     }
     
@@ -38,7 +44,8 @@ class RemindersTableViewCell: UITableViewCell {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: coder)
+        configureCellStyle()
     }
     
     // MARK: Helper methods
@@ -49,17 +56,7 @@ class RemindersTableViewCell: UITableViewCell {
     
     func configureCell(withModel model: RemindersTableViewCell.RemindersCellModel) {
         self.nameOfReminder = model.nameOfReminder
-        textLabel?.text = nameOfReminder
-        
-        switch model.reminderType {
-        case ReminderType.routineTask:
-            self.reminderType = "Routine Task"
-        case ReminderType.refillItem:
-            self.reminderType = "Item Refill"
-        default:
-            self.reminderType = "Reminder"
-        }
-        detailTextLabel?.text = reminderType
+        detailTextLabel?.text = "\(model.reminderType.rawValue) - \(model.timeStringUntilTriggerDate)"
     }
 
 }

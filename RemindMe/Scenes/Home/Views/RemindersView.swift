@@ -8,35 +8,19 @@
 
 import UIKit
 
-protocol RemindersViewDelegate: class {
-    func didTapAddReminderButton()
-    func didTapRemoveReminderButton()
-}
-
 class RemindersView: UIView {
     
     // MARK: Properties and Constants
-    
-    weak var delegate: RemindersViewDelegate?
     
     // MARK: UI Properties
     
     lazy var remindersTableView: UITableView = {
         let table = UITableView()
-        table.layer.borderWidth = 1
-        table.layer.cornerRadius = 10
-        
         // default inset extends past trailing edge; this creates a symmetric separator
         table.separatorInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
         table.separatorColor = .darkGray
         table.backgroundColor = .white
-        
-        // TODO: HOok up table view to show reminder items, then hook up
-        // the firebase add/remove value methods to nav button and swipe action
-        // respectively
-        
         table.register(RemindersTableViewCell.self, forCellReuseIdentifier: RemindersTableViewCell.cellID)
-        
         return table
     }()
     
@@ -47,7 +31,8 @@ class RemindersView: UIView {
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(coder: coder)
+        setup()
     }
     
     // MARK: Setup
@@ -56,13 +41,7 @@ class RemindersView: UIView {
         
         addSubview(remindersTableView)
         
-        // setting constraints without constants
-        remindersTableView.setAndActivateConstraints(top: self.safeAreaLayoutGuide.topAnchor, bottom: self.safeAreaLayoutGuide.bottomAnchor, leading: self.leadingAnchor, trailing: self.trailingAnchor)
-        
+        remindersTableView.setAndActivateConstraints(top: safeAreaLayoutGuide.topAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, leading: leadingAnchor, trailing: trailingAnchor, centerX: nil, centerY: nil)
     }
-    
-//    func setDelegate(to delegate: RemindersViewDelegate) {
-//        self.delegate = delegate
-//    }
     
 }

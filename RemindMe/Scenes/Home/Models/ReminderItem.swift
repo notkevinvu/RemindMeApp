@@ -9,36 +9,48 @@
 import Foundation
 import Firebase
 
+// MARK: ReminderType enum
 enum ReminderType: String {
-    case routineTask, refillItem, generic
+    case routineTask = "Routine task",
+         refillItem = "Refill item",
+         generic = "Generic"
 }
 
+enum ReminderIntervalTimeType: String {
+    case days,
+         weeks,
+         months,
+         years,
+         error = "Error getting interval type"
+}
+
+// MARK: ReminderItem struct
 struct ReminderItem {
     
     // MARK: Constants
+    // used for strongly typing the keys from the resulting snapshot data
     private let nameOfReminderConstant = "nameOfReminder"
     private let addedByUserConstant = "addedByUser"
     private let reminderTypeConstant = "reminderType"
     private let dateAddedConstant = "dateAdded"
     private let currentIntervalStartDateConstant = "currentIntervalStartDate"
+    private let reminderIntervalTimeTypeConstant = "reminderIntervalTimeTypeConstant"
+    private let reminderIntervalTimeValueConstant = "reminderIntervalValueConstant"
     private let upcomingReminderTriggerDateConstant = "upcomingReminderTriggerDate"
-    private let isOneTimeReminderConstant = "isOneTimeReminder"
     
     // MARK: Properties
     let ref: DatabaseReference?
     let key: String
     
-    let nameOfReminder: String
+    var nameOfReminder: String
     let addedByUser: String
     let reminderType: ReminderType
     let dateAdded: Date
-    // current interval start date should update to the new date when the reminder
-    // is triggered
+    // current interval start date should update to the new date when the reminder is triggered
     let currentIntervalStartDate: Date
-    // TODO: Need to add an intervalBetweenReminders property - probably of type
-    // DateComponents? Then just extract the month/days/weeks/years out of it
-    // or create a simplified custom DateInterval that has days, months, weeks, years
-    // properties
+    
+    let reminderIntervalTimeType: ReminderIntervalTimeType
+    let reminderIntervalTimeValue: Int
     let upcomingReminderTriggerDate: Date
     
     // MARK: Default init
@@ -48,6 +60,8 @@ struct ReminderItem {
          reminderType: ReminderType,
          dateAdded: Date = Date(),
          currentIntervalStartDate: Date,
+         reminderIntervalTimeType: ReminderIntervalTimeType,
+         reminderIntervalTimeValue: Int,
          upcomingReminderTriggerDate: Date) {
         
         self.ref = nil
@@ -57,6 +71,8 @@ struct ReminderItem {
         self.reminderType = reminderType
         self.dateAdded = dateAdded
         self.currentIntervalStartDate = currentIntervalStartDate
+        self.reminderIntervalTimeType = reminderIntervalTimeType
+        self.reminderIntervalTimeValue = reminderIntervalTimeValue
         self.upcomingReminderTriggerDate = upcomingReminderTriggerDate
     }
     
@@ -70,6 +86,8 @@ struct ReminderItem {
             let reminderType = value[reminderTypeConstant] as? String,
             let dateAddedString = value[dateAddedConstant] as? String,
             let currentIntervalStartDateString = value[currentIntervalStartDateConstant] as? String,
+            let reminderIntervalTimeTypeString = value[reminderIntervalTimeTypeConstant] as? String,
+            let reminderIntervalTimeValue = value[reminderIntervalTimeValueConstant] as? Int,
             let upcomingReminderTriggerDateString = value[upcomingReminderTriggerDateConstant] as? String
         else {
             // handle errors in extracting data from snapshot
@@ -104,6 +122,21 @@ struct ReminderItem {
         
         self.dateAdded = dateAdded
         self.currentIntervalStartDate = currentIntervalStartDate
+        
+        switch reminderIntervalTimeTypeString {
+        case ReminderIntervalTimeType.years.rawValue:
+            self.reminderIntervalTimeType = .years
+        case ReminderIntervalTimeType.months.rawValue:
+            self.reminderIntervalTimeType = .months
+        case ReminderIntervalTimeType.weeks.rawValue:
+            self.reminderIntervalTimeType = .weeks
+        case ReminderIntervalTimeType.days.rawValue:
+            self.reminderIntervalTimeType = .days
+        default:
+            self.reminderIntervalTimeType = .error
+        }
+        
+        self.reminderIntervalTimeValue = reminderIntervalTimeValue
         self.upcomingReminderTriggerDate = upcomingReminderTriggerDate
     }
     
@@ -128,6 +161,8 @@ extension ReminderItem {
             reminderTypeConstant: reminderType.rawValue,
             dateAddedConstant: dateAddedString,
             currentIntervalStartDateConstant: currentIntervalStartDateString,
+            reminderIntervalTimeTypeConstant: reminderIntervalTimeType.rawValue,
+            reminderIntervalTimeValueConstant: reminderIntervalTimeValue,
             upcomingReminderTriggerDateConstant: upcomingReminderTriggerDateString
         ]
     }
