@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-protocol AddReminderItemDelegate: class {
+protocol AddReminderItemDelegate: AnyObject {
     // TODO: add function to pass data back to RemindersViewController to
     // add the reminder item
     func saveReminderItem(_ reminderItem: ReminderItem)
