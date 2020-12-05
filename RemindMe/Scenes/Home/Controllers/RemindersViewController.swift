@@ -12,21 +12,24 @@ import Firebase
 class RemindersViewController: UIViewController, AddReminderItemDelegate {
     
     // MARK: Constants
+    // used as a reference path to the firebase db
     let usersConstant = "users"
     
     // MARK: Properties
     
     var contentView: RemindersView!
     
+    // TODO: Maybe add these via dependency injection?
+    var firebaseAuthService = FirebaseAuthenticationService()
+    var firebaseObserverService = FirebaseObserverService()
+    
     var user: User = User(uid: "fakeID", email: "fakeEmail@example.com")
     lazy var usersRef = Database.database().reference(withPath: usersConstant)
     lazy var currentUserRef = usersRef.child(user.uid)
-    var authHandle: AuthStateDidChangeListenerHandle?
     
     var reminderItems = [ReminderItem]()
     
     // MARK: Object lifecycle
-    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         setup()
@@ -40,14 +43,12 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     // MARK: View lifecycle
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // this adds auth listener
-        authenticateUser()
+        setupFirebaseListeners()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        guard let authHandle = authHandle else { return }
-        Auth.auth().removeStateDidChangeListener(authHandle)
+        firebaseAuthService.removeAuthListener()
     }
     
     override func loadView() {
@@ -81,44 +82,23 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
         configureNavBar()
     }
     
-    
-    // MARK: Auth methods
-    private func signInAnonymously() {
-        Auth.auth().signInAnonymously { (authResult, error) in
-            if let error = error {
-                print(error.localizedDescription)
-                return
-            }
-            guard let user = authResult?.user else { return }
-            self.user = User(authData: user)
-        }
-    }
-    
-    private func addAuthListener(completion: @escaping () -> ()) {
-        authHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
-            guard let user = user else { return }
-            
-            self.user = User(authData: user)
-            // completion is used to tell the caller that the user is authenticated
-            // and signed in - thus we can now observe the corresponding user's
-            // reminder items reference
-            completion()
-        }
-    }
-    
-    private func authenticateUser() {
-        // no user, we should login
-        if Auth.auth().currentUser == nil {
-            signInAnonymously()
-        }
-        addAuthListener { [weak self] in
+    private func setupFirebaseListeners() {
+        // this adds auth listener as well
+        firebaseAuthService.authenticateUser { [weak self] (user) in
             guard let self = self else { return }
-            // authentication has completed, add the reference observer to get data
-            self.addRemindersRefObserver()
+            self.user = user
+            
+            self.firebaseObserverService.addObserver(to: self.currentUserRef) { (newReminderItems) in
+                self.reminderItems = newReminderItems
+                self.contentView.remindersTableView.reloadData()
+            }
         }
     }
     
     // MARK: Delegate methods
+    // TODO: extract this into its own class/struct?
+    // then we can call something like
+    // firebaseObjectService.saveReminderItem(_:)
     func saveReminderItem(_ reminderItem: ReminderItem) {
         let autoIDReminderItemRef = currentUserRef.childByAutoId()
         var newReminderItem = reminderItem
@@ -205,9 +185,13 @@ extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        // TODO: Move to detail screen
+        return indexPath
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // TODO: Maybe selecting a row will take you to a detail screen
-        // showing all the details of the reminder?
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
