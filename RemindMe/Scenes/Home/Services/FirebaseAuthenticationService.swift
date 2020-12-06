@@ -9,12 +9,14 @@
 import Foundation
 import Firebase
 
-class FirebaseAuthenticationService {
+// needs to be a class so we refer to the correct auth handle and listener (probably?)
+class FirebaseAuthenticationService: NSObject {
     
     // MARK: - Properties
-    // firebase docs suggest to remove the auth handle in viewWillDisappear
-    // so we keep the auth handle optional to handle a nil state
-    var authHandle: AuthStateDidChangeListenerHandle? = nil
+    // firebase docs suggest to attach/detach the auth handle in the
+    // viewWillAppear/Disappear methods so we keep the auth handle optional
+    // to handle a nil state
+    private var authHandle: AuthStateDidChangeListenerHandle? = nil
     
     // MARK: - Private methods
     private func signInAnonymously() {
@@ -23,8 +25,8 @@ class FirebaseAuthenticationService {
                 print(error.localizedDescription)
                 return
             }
-            // only need to sign in here, we will set the user
-            // via the authenticate user
+            // only need to sign in here, we will set the user via the
+            // authenticate user method
         }
     }
     

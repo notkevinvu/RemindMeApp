@@ -28,4 +28,9 @@ struct FirebaseObserverService {
             completion(newReminderItems)
         }
     }
+    
+    public func removeAllObservers(from reference: DatabaseReference, completion: @escaping () -> Void) {
+        reference.removeAllObservers()
+        completion()
+    }
 }
