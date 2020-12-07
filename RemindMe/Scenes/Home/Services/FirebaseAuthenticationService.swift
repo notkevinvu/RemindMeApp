@@ -20,13 +20,13 @@ class FirebaseAuthenticationService: NSObject {
     
     // MARK: - Private methods
     private func signInAnonymously() {
+        // only need to sign in here, we will set the user via the
+        // authenticate user method
         Auth.auth().signInAnonymously { (authResult, error) in
             if let error = error {
                 print(error.localizedDescription)
                 return
             }
-            // only need to sign in here, we will set the user via the
-            // authenticate user method
         }
     }
     
@@ -46,8 +46,7 @@ class FirebaseAuthenticationService: NSObject {
             signInAnonymously()
         }
         addAuthListener { (user) in
-            // use completion to add reference observer after
-            // authenticating users
+            // use completion to add reference observer after authenticating users
             completion(user)
         }
     }
