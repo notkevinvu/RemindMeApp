@@ -18,10 +18,11 @@ class IntervalTimeTableViewCell: UITableViewCell {
     // MARK: - Constants
     static let identifier = "IntervalTimeCellID"
     
+    
     // MARK: - Properties
     weak var didFinishPickingIntervalTimeDelegate: IntervalTimeCellDelegate?
     
-    let discreteTimeUnits = Array(0...365)
+    let discreteTimeUnits = Array(1...365)
     let intervalTimeTypes: [ReminderIntervalTimeType] = [.days, .weeks, .months, .years]
     
     lazy var textField: UITextField = {
@@ -48,8 +49,6 @@ class IntervalTimeTableViewCell: UITableViewCell {
         return tf
     }()
     
-    // TODO: Maybe use two picker views? Kind of hard atm to update textfield
-    // with multiple components in pickerview
     lazy var intervalTimePicker: UIPickerView = {
         let picker = UIPickerView()
         picker.delegate = self

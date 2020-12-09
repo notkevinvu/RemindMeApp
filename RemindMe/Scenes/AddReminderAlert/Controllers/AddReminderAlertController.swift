@@ -9,9 +9,7 @@
 import UIKit
 import Firebase
 
-protocol AddReminderItemDelegate: class {
-    // TODO: add function to pass data back to RemindersViewController to
-    // add the reminder item
+protocol AddReminderItemDelegate: AnyObject {
     func saveReminderItem(_ reminderItem: ReminderItem)
 }
 
@@ -20,9 +18,7 @@ class AddReminderAlertController: UIViewController {
     // MARK: - Properties
     var contentView: AddReminderAlertView!
     
-    // we use these properties to eventually create the reminder item
-    // in our delegate method to actually save in the other VC since it
-    // already has the database references we need to save
+    // store these properties here to send to delegate when needed
     var nameOfReminder: String? = nil
     var reminderType: ReminderType? = nil
     var intervalStartDate: Date? = nil

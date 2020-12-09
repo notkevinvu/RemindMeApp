@@ -9,24 +9,31 @@
 import UIKit
 import Firebase
 
+/*
+ TODO 7 Dec 2020:
+ 
+ - Move delegate out of VC? Maybe not needed, really doesn't have that much code
+ - Create detail screen for viewing details about each reminder
+ - Add update methods to edit reminders (name/type/time range etc)
+ - Switch to collection view
+ - Add code for scheduling notifications (probably through UserNotifications) and
+    allow for users to cancel the upcoming notification/reminder and go onto the
+    next one or just cancel entirely (indefinite pause)
+ - Sort the reminders on main screen by closest upcoming reminder (retain
+    option to sort by name of reminder? - If done this way, likely want to
+    add a color tint to the cell indicating how close the next trigger date is)
+ - Allow user to sign up with email+password (i.e. update email and password -
+    convert an anonymous account to a permanent one)
+ */
+
 class RemindersViewController: UIViewController, AddReminderItemDelegate {
     
-    // MARK: Constants
-    let usersConstant = "users"
-    
     // MARK: Properties
-    
     var contentView: RemindersView!
     
-    var user: User = User(uid: "fakeID", email: "fakeEmail@example.com")
-    lazy var usersRef = Database.database().reference(withPath: usersConstant)
-    lazy var currentUserRef = usersRef.child(user.uid)
-    var authHandle: AuthStateDidChangeListenerHandle?
-    
-    var reminderItems = [ReminderItem]()
+    var dataSource: RemindersDataSource = RemindersDataSource()
     
     // MARK: Object lifecycle
-    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         setup()
@@ -40,14 +47,18 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     // MARK: View lifecycle
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // this adds auth listener
-        authenticateUser()
+        
+        dataSource.setupFirebaseListeners { [weak self] in
+            guard let self = self else { return }
+            // more transition code - might be weird with table view UI updates
+            // in other areas though
+            UIView.transition(with: self.contentView.remindersTableView, duration: 0.25, options: .transitionCrossDissolve, animations: self.contentView.remindersTableView.reloadData, completion: nil)
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        guard let authHandle = authHandle else { return }
-        Auth.auth().removeStateDidChangeListener(authHandle)
+        dataSource.removeFirebaseListeners()
     }
     
     override func loadView() {
@@ -65,76 +76,47 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
         contentView = view
     }
     
-    private func setTableViewDelegate() {
-        contentView.remindersTableView.delegate = self
-        contentView.remindersTableView.dataSource = self
-    }
-    
     private func configureNavBar() {
         navigationItem.title = "Reminders"
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(presentAddReminderSheetVC))
     }
     
+    // MARK: - TODO: CHANGE TABLE VIEW DELEGATE
+    private func setTableViewDelegate() {
+        contentView.remindersTableView.delegate = self
+        
+        contentView.remindersTableView.dataSource = dataSource
+    }
+    
     private func setup() {
         setupView()
-        setTableViewDelegate()
         configureNavBar()
-    }
-    
-    
-    // MARK: Auth methods
-    private func signInAnonymously() {
-        Auth.auth().signInAnonymously { (authResult, error) in
-            if let error = error {
-                print(error.localizedDescription)
-                return
-            }
-            guard let user = authResult?.user else { return }
-            self.user = User(authData: user)
-        }
-    }
-    
-    private func addAuthListener(completion: @escaping () -> ()) {
-        authHandle = Auth.auth().addStateDidChangeListener { (auth, user) in
-            guard let user = user else { return }
-            
-            self.user = User(authData: user)
-            // completion is used to tell the caller that the user is authenticated
-            // and signed in - thus we can now observe the corresponding user's
-            // reminder items reference
-            completion()
-        }
-    }
-    
-    private func authenticateUser() {
-        // no user, we should login
-        if Auth.auth().currentUser == nil {
-            signInAnonymously()
-        }
-        addAuthListener { [weak self] in
-            guard let self = self else { return }
-            // authentication has completed, add the reference observer to get data
-            self.addRemindersRefObserver()
-        }
+        setTableViewDelegate()
     }
     
     // MARK: Delegate methods
     func saveReminderItem(_ reminderItem: ReminderItem) {
-        let autoIDReminderItemRef = currentUserRef.childByAutoId()
+        let newReminderItemRef = dataSource.getCurrentUserRef().childByAutoId()
         var newReminderItem = reminderItem
-        
+
         let numberOfDuplicates = checkNumberOfDuplicateNames(forName: reminderItem.nameOfReminder)
         if numberOfDuplicates > 0 {
             newReminderItem.nameOfReminder.append(" (\(numberOfDuplicates))")
         }
         
-        self.reminderItems.append(newReminderItem)
-        autoIDReminderItemRef.setValue(newReminderItem.toDict())
+        dataSource.append(reminderItem: newReminderItem) { [weak self] in
+            guard let self = self else { return }
+            // use reloadRows here so that we get a nice animation :)
+            let indexPath = IndexPath(row: self.dataSource.allReminderItems().count - 1, section: 0)
+            self.contentView.remindersTableView.insertRows(at: [indexPath], with: .automatic)
+        }
+        newReminderItemRef.setValue(newReminderItem.toDict())
     }
     
     // MARK: - Utility methods
     private func checkNumberOfDuplicateNames(forName name: String) -> Int {
         var numberOfDuplicates = 0
+        let reminderItems = dataSource.allReminderItems()
         for item in reminderItems {
             if name == item.nameOfReminder {
                 numberOfDuplicates += 1
@@ -150,74 +132,19 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
         let navVC = UINavigationController(rootViewController: addReminderAlertVC)
         navigationController?.present(navVC, animated: true, completion: nil)
     }
-    
-    // MARK: Reminder items ref observer
-    
-    private func addRemindersRefObserver() {
-        currentUserRef.observe(.value) { (snapshot) in
-            var newReminderItems: [ReminderItem] = []
-            
-            for child in snapshot.children {
-                guard
-                    let snapshot = child as? DataSnapshot,
-                    let reminderItem = ReminderItem(snapshot: snapshot)
-                else {
-                    print("Error getting reminder items")
-                    return
-                }
-                newReminderItems.append(reminderItem)
-            }
-            
-            self.reminderItems = newReminderItems
-            self.contentView.remindersTableView.reloadData()
-        }
-    }
-    
 }
 
 // MARK: - Table view methods
-extension RemindersViewController: UITableViewDelegate, UITableViewDataSource {
+extension RemindersViewController: UITableViewDelegate {
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return reminderItems.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: RemindersTableViewCell.cellID, for: indexPath) as! RemindersTableViewCell
-        
-        let reminderItem = reminderItems[indexPath.row]
-        
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .full
-        formatter.allowedUnits = [.year, .month, .weekOfMonth, .day]
-        formatter.includesTimeRemainingPhrase = true
-        let timeStringUntilTriggerDate = formatter.string(from: Date(), to: reminderItem.upcomingReminderTriggerDate) ?? "Error formatting remaining time."
-        
-        let model = RemindersTableViewCell.RemindersCellModel(
-            nameOfReminder  : reminderItem.nameOfReminder,
-            timeRemaining   : reminderItem.reminderIntervalTimeValue,
-            reminderType    : reminderItem.reminderType,
-            timeStringUntilTriggerDate: timeStringUntilTriggerDate
-        )
-        
-        cell.configureCell(withModel: model)
-
-        return cell
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        // TODO: Move to detail screen
+        return indexPath
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // TODO: Maybe selecting a row will take you to a detail screen
-        // showing all the details of the reminder?
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let row = indexPath.row
-            let reminderItem = reminderItems[row]
-            reminderItem.ref?.removeValue()
-            tableView.reloadRows(at: [indexPath], with: .left)
-            reminderItems.remove(at: row)
-        }
-    }
 }
 
