@@ -10,16 +10,20 @@ import UIKit
 import Firebase
 
 /*
- TODO: Order of operations:
+ TODO 7 Dec 2020:
  
- 1) When user launches app, this VC is created
- 
- 2) We then need to handle authentication/logging in
- 
- 3) After authentication/logging in is finished, we then need to get the
- reminder items from firebase through the observer (i.e. add observer)
- 
- 4) We then pass these items into the array that holds them
+ - Move delegate out of VC? Maybe not needed, really doesn't have that much code
+ - Create detail screen for viewing details about each reminder
+ - Add update methods to edit reminders (name/type/time range etc)
+ - Switch to collection view
+ - Add code for scheduling notifications (probably through UserNotifications) and
+    allow for users to cancel the upcoming notification/reminder and go onto the
+    next one or just cancel entirely (indefinite pause)
+ - Sort the reminders on main screen by closest upcoming reminder (retain
+    option to sort by name of reminder? - If done this way, likely want to
+    add a color tint to the cell indicating how close the next trigger date is)
+ - Allow user to sign up with email+password (i.e. update email and password -
+    convert an anonymous account to a permanent one)
  */
 
 class RemindersViewController: UIViewController, AddReminderItemDelegate {
