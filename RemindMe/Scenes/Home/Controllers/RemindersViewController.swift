@@ -45,6 +45,15 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     }
     
     // MARK: View lifecycle
+    override func loadView() {
+        super.loadView()
+        view = contentView
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -61,15 +70,6 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
         dataSource.removeFirebaseListeners()
     }
     
-    override func loadView() {
-        super.loadView()
-        view = contentView
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-    
     // MARK: Setup
     private func setupView() {
         let view = RemindersView()
@@ -78,13 +78,12 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     
     private func configureNavBar() {
         navigationItem.title = "Reminders"
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(presentSignInVC))
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(presentAddReminderSheetVC))
     }
     
-    // MARK: - TODO: CHANGE TABLE VIEW DELEGATE
     private func setTableViewDelegate() {
         contentView.remindersTableView.delegate = self
-        
         contentView.remindersTableView.dataSource = dataSource
     }
     
@@ -106,7 +105,7 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
         
         dataSource.append(reminderItem: newReminderItem) { [weak self] in
             guard let self = self else { return }
-            // use reloadRows here so that we get a nice animation :)
+            // use insertRows here so that we get a nice animation :)
             let indexPath = IndexPath(row: self.dataSource.allReminderItems().count - 1, section: 0)
             self.contentView.remindersTableView.insertRows(at: [indexPath], with: .automatic)
         }
@@ -114,6 +113,7 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     }
     
     // MARK: - Utility methods
+    // TODO: Maybe move this to datasource?
     private func checkNumberOfDuplicateNames(forName name: String) -> Int {
         var numberOfDuplicates = 0
         let reminderItems = dataSource.allReminderItems()
@@ -132,6 +132,12 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
         let navVC = UINavigationController(rootViewController: addReminderAlertVC)
         navigationController?.present(navVC, animated: true, completion: nil)
     }
+    
+    @objc func presentSignInVC() {
+        let signInVC = SignInViewController()
+        let navVC = UINavigationController(rootViewController: signInVC)
+        navigationController?.present(navVC, animated: true, completion: nil)
+    }
 }
 
 // MARK: - Table view methods
@@ -145,6 +151,5 @@ extension RemindersViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
 }
 

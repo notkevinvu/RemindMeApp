@@ -9,22 +9,64 @@
 import UIKit
 
 class SignInViewController: UIViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+    
+    // MARK: - Properties
+    var contentView: SignInView!
+    
+    // MARK: - Object lifecycle
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        setup()
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
     }
-    */
+    
+    // MARK: - View lifecycle
+    override func loadView() {
+        view = contentView
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+    }
+    
+    // MARK: - Setup
+    private func setupView() {
+        let view = SignInView(delegate: self)
+        contentView = view
+    }
+    
+    private func configureNavigationBar() {
+        navigationItem.title = "Sign In"
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(didTapCancelButton))
+        navigationItem.leftBarButtonItem?.tintColor = .systemRed
+    }
+    
+    private func setup() {
+        setupView()
+        configureNavigationBar()
+    }
+    
+    // MARK: - Button methods
+    @objc func didTapCancelButton() {
+        dismiss(animated: true, completion: nil)
+    }
+    
+}
 
+// MARK: - Sign in view delegate
+extension SignInViewController: SignInViewDelegate {
+    func didTapSignUpButton() {
+        
+    }
+    
+    func didTapSignInButton() {
+        
+    }
+    
+    
 }

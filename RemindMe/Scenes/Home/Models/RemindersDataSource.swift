@@ -9,6 +9,8 @@
 import UIKit
 import Firebase
 
+// this class is currently more like a data manager and takes care of some
+// business logic as well
 class RemindersDataSource: NSObject, UITableViewDataSource {
     
     // MARK: - Properties
@@ -87,13 +89,13 @@ class RemindersDataSource: NSObject, UITableViewDataSource {
         formatter.unitsStyle = .full
         formatter.allowedUnits = [.year, .month, .weekOfMonth, .day]
         formatter.includesTimeRemainingPhrase = true
-        let timeStringUntilTriggerDate = formatter.string(from: Date(), to: reminderItem.upcomingReminderTriggerDate) ?? "Error formatting remaining time."
+        let timeUntilTriggerDateString = formatter.string(from: Date(), to: reminderItem.upcomingReminderTriggerDate) ?? "Error formatting remaining time."
         
         let model = RemindersTableViewCell.RemindersCellModel(
             nameOfReminder  : reminderItem.nameOfReminder,
             timeRemaining   : reminderItem.reminderIntervalTimeValue,
             reminderType    : reminderItem.reminderType,
-            timeStringUntilTriggerDate: timeStringUntilTriggerDate
+            timeUntilTriggerDateString: timeUntilTriggerDateString
         )
         
         cell.configureCell(withModel: model)
