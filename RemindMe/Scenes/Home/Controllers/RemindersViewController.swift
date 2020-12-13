@@ -26,7 +26,7 @@ import Firebase
     convert an anonymous account to a permanent one)
  */
 
-class RemindersViewController: UIViewController, AddReminderItemDelegate {
+class RemindersViewController: UIViewController {
     
     // MARK: Properties
     var contentView: RemindersView!
@@ -93,25 +93,6 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
         setTableViewDelegate()
     }
     
-    // MARK: Delegate methods
-    func saveReminderItem(_ reminderItem: ReminderItem) {
-        let newReminderItemRef = dataSource.getCurrentUserRef().childByAutoId()
-        var newReminderItem = reminderItem
-
-        let numberOfDuplicates = checkNumberOfDuplicateNames(forName: reminderItem.nameOfReminder)
-        if numberOfDuplicates > 0 {
-            newReminderItem.nameOfReminder.append(" (\(numberOfDuplicates))")
-        }
-        
-        dataSource.append(reminderItem: newReminderItem) { [weak self] in
-            guard let self = self else { return }
-            // use insertRows here so that we get a nice animation :)
-            let indexPath = IndexPath(row: self.dataSource.allReminderItems().count - 1, section: 0)
-            self.contentView.remindersTableView.insertRows(at: [indexPath], with: .automatic)
-        }
-        newReminderItemRef.setValue(newReminderItem.toDict())
-    }
-    
     // MARK: - Utility methods
     // TODO: Maybe move this to datasource?
     private func checkNumberOfDuplicateNames(forName name: String) -> Int {
@@ -134,10 +115,43 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     }
     
     @objc func presentSignInVC() {
-        let signInVC = SignInViewController()
+        let signInVC = SignInViewController(delegate: self)
         let navVC = UINavigationController(rootViewController: signInVC)
         navigationController?.present(navVC, animated: true, completion: nil)
     }
+}
+
+// MARK: - Add reminder item delegate
+extension RemindersViewController: AddReminderItemDelegate {
+    func saveReminderItem(_ reminderItem: ReminderItem) {
+        let newReminderItemRef = dataSource.getCurrentUserRef().childByAutoId()
+        var newReminderItem = reminderItem
+
+        let numberOfDuplicates = checkNumberOfDuplicateNames(forName: reminderItem.nameOfReminder)
+        if numberOfDuplicates > 0 {
+            newReminderItem.nameOfReminder.append(" (\(numberOfDuplicates))")
+        }
+        
+        dataSource.append(reminderItem: newReminderItem) { [weak self] in
+            guard let self = self else { return }
+            // use insertRows here so that we get a nice animation :)
+            let indexPath = IndexPath(row: self.dataSource.allReminderItems().count - 1, section: 0)
+            self.contentView.remindersTableView.insertRows(at: [indexPath], with: .automatic)
+        }
+        newReminderItemRef.setValue(newReminderItem.toDict())
+    }
+}
+
+// MARK: - Sign in delegate
+extension RemindersViewController: SignInViewDelegate {
+    func signInView(_ signInView: SignInView, shouldSignInWith credentials: TempUserCredentials) {
+        print("SIGNED IN - VC")
+    }
+    
+    func signInView(_ signInView: SignInView, shouldRegisterWith credentials: TempUserCredentials) {
+        print("REGISTERED - VC")
+    }
+    
 }
 
 // MARK: - Table view methods

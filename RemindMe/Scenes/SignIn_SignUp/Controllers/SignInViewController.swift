@@ -13,15 +13,18 @@ class SignInViewController: UIViewController {
     // MARK: - Properties
     var contentView: SignInView!
     
+    weak var delegate: SignInViewDelegate?
+    
     // MARK: - Object lifecycle
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+    
+    init(delegate: SignInViewDelegate) {
+        super.init(nibName: nil, bundle: nil)
+        self.delegate = delegate
         setup()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        setup()
     }
     
     // MARK: - View lifecycle
@@ -36,7 +39,10 @@ class SignInViewController: UIViewController {
     
     // MARK: - Setup
     private func setupView() {
-        let view = SignInView(delegate: self)
+        // we should have a delegate by this time anyway since we inject a delegate
+        // into the current VC on initialization. Thus, we can force cast the delegate
+        // to inject into the view
+        let view = SignInView(delegate: delegate!)
         contentView = view
     }
     
@@ -55,18 +61,5 @@ class SignInViewController: UIViewController {
     @objc func didTapCancelButton() {
         dismiss(animated: true, completion: nil)
     }
-    
-}
-
-// MARK: - Sign in view delegate
-extension SignInViewController: SignInViewDelegate {
-    func didTapSignUpButton() {
-        
-    }
-    
-    func didTapSignInButton() {
-        
-    }
-    
     
 }
