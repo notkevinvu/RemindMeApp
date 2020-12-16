@@ -24,6 +24,14 @@ class RemindersDataSource: NSObject, UITableViewDataSource {
     private var firebaseAuthService = FirebaseAuthenticationService()
     private var firebaseObserverService = FirebaseObserverService()
     
+    private let dateComponentsFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = [.year, .month, .weekOfMonth, .day]
+        formatter.includesTimeRemainingPhrase = true
+        return formatter
+    }()
+    
     // MARK: - Object lifecycle
     override init() {
         super.init()
@@ -85,11 +93,8 @@ class RemindersDataSource: NSObject, UITableViewDataSource {
         
         let reminderItem = reminderItems[indexPath.row]
         
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .full
-        formatter.allowedUnits = [.year, .month, .weekOfMonth, .day]
-        formatter.includesTimeRemainingPhrase = true
-        let timeUntilTriggerDateString = formatter.string(from: Date(), to: reminderItem.upcomingReminderTriggerDate) ?? "Error formatting remaining time."
+        
+        let timeUntilTriggerDateString = dateComponentsFormatter.string(from: Date(), to: reminderItem.upcomingReminderTriggerDate) ?? "Error formatting remaining time."
         
         let model = RemindersTableViewCell.RemindersCellModel(
             nameOfReminder  : reminderItem.nameOfReminder,
