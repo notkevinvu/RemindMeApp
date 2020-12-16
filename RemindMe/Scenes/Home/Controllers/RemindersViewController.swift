@@ -12,7 +12,6 @@ import Firebase
 /*
  TODO 7 Dec 2020:
  
- - Move delegate out of VC? Maybe not needed, really doesn't have that much code
  - Create detail screen for viewing details about each reminder
  - Add update methods to edit reminders (name/type/time range etc)
  - Switch to collection view
@@ -22,8 +21,15 @@ import Firebase
  - Sort the reminders on main screen by closest upcoming reminder (retain
     option to sort by name of reminder? - If done this way, likely want to
     add a color tint to the cell indicating how close the next trigger date is)
+    (Maybe just hold a separate array for locally filtered results in the data
+    source and have a function to .filter() the current reminder items
+    based on the time remaining and set the array to that filtered array)
+ 
+ 
  - Allow user to sign up with email+password (i.e. update email and password -
     convert an anonymous account to a permanent one)
+ - After user logs in/registers acc, need to switch the login icon/bar button item
+    to sign out instead - store as enum state?
  */
 
 class RemindersViewController: UIViewController {
@@ -31,7 +37,7 @@ class RemindersViewController: UIViewController {
     // MARK: Properties
     var contentView: RemindersView!
     
-    var dataSource: RemindersDataSource = RemindersDataSource()
+    var dataManager: RemindersDataManager = RemindersDataManager()
     
     // MARK: Object lifecycle
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -57,7 +63,7 @@ class RemindersViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        dataSource.setupFirebaseListeners { [weak self] in
+        dataManager.setupFirebaseListeners { [weak self] in
             guard let self = self else { return }
             // more transition code - might be weird with table view UI updates
             // in other areas though
@@ -67,7 +73,7 @@ class RemindersViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        dataSource.removeFirebaseListeners()
+        dataManager.removeFirebaseListeners()
     }
     
     // MARK: Setup
@@ -84,7 +90,7 @@ class RemindersViewController: UIViewController {
     
     private func setTableViewDelegate() {
         contentView.remindersTableView.delegate = self
-        contentView.remindersTableView.dataSource = dataSource
+        contentView.remindersTableView.dataSource = dataManager
     }
     
     private func setup() {
@@ -97,7 +103,7 @@ class RemindersViewController: UIViewController {
     // TODO: Maybe move this to datasource?
     private func checkNumberOfDuplicateNames(forName name: String) -> Int {
         var numberOfDuplicates = 0
-        let reminderItems = dataSource.allReminderItems()
+        let reminderItems = dataManager.allReminderItems()
         for item in reminderItems {
             if name == item.nameOfReminder {
                 numberOfDuplicates += 1
@@ -124,18 +130,18 @@ class RemindersViewController: UIViewController {
 // MARK: - Add reminder item delegate
 extension RemindersViewController: AddReminderItemDelegate {
     func saveReminderItem(_ reminderItem: ReminderItem) {
-        let newReminderItemRef = dataSource.getCurrentUserRef().childByAutoId()
+        let newReminderItemRef = dataManager.getCurrentUserRef().childByAutoId()
         var newReminderItem = reminderItem
-
+        
         let numberOfDuplicates = checkNumberOfDuplicateNames(forName: reminderItem.nameOfReminder)
         if numberOfDuplicates > 0 {
             newReminderItem.nameOfReminder.append(" (\(numberOfDuplicates))")
         }
         
-        dataSource.append(reminderItem: newReminderItem) { [weak self] in
+        dataManager.append(reminderItem: newReminderItem) { [weak self] in
             guard let self = self else { return }
             // use insertRows here so that we get a nice animation :)
-            let indexPath = IndexPath(row: self.dataSource.allReminderItems().count - 1, section: 0)
+            let indexPath = IndexPath(row: self.dataManager.allReminderItems().count - 1, section: 0)
             self.contentView.remindersTableView.insertRows(at: [indexPath], with: .automatic)
         }
         newReminderItemRef.setValue(newReminderItem.toDict())
@@ -144,11 +150,11 @@ extension RemindersViewController: AddReminderItemDelegate {
 
 // MARK: - Sign in delegate
 extension RemindersViewController: SignInViewDelegate {
-    func signInView(_ signInView: SignInView, shouldSignInWith credentials: TempUserCredentials) {
+    func signInView(_ signInView: SignInView, didTapSignInButtonWith credentials: TempUserCredentials) {
         print("SIGNED IN - VC")
     }
     
-    func signInView(_ signInView: SignInView, shouldRegisterWith credentials: TempUserCredentials) {
+    func signInView(_ signInView: SignInView, didTapRegisterButtonWith credentials: TempUserCredentials) {
         print("REGISTERED - VC")
     }
     

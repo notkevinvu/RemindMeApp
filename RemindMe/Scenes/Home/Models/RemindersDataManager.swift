@@ -11,7 +11,7 @@ import Firebase
 
 // this class is currently more like a data manager and takes care of some
 // business logic as well
-class RemindersDataSource: NSObject, UITableViewDataSource {
+class RemindersDataManager: NSObject, UITableViewDataSource {
     
     // MARK: - Properties
     var user: User = User(uid: "fakeID", email: "fakeEmail@example.com")
@@ -92,7 +92,6 @@ class RemindersDataSource: NSObject, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: RemindersTableViewCell.cellID, for: indexPath) as! RemindersTableViewCell
         
         let reminderItem = reminderItems[indexPath.row]
-        
         
         let timeUntilTriggerDateString = dateComponentsFormatter.string(from: Date(), to: reminderItem.upcomingReminderTriggerDate) ?? "Error formatting remaining time."
         
