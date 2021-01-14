@@ -24,10 +24,13 @@ import Firebase
     (Maybe just hold a separate array for locally filtered results in the data
     source and have a function to .filter() the current reminder items
     based on the time remaining and set the array to that filtered array)
+ - Move the AddReminderItemDelegate to another class (maybe dataManager as well?
+    kinda makes sense but that class is starting to get pretty crowded)
  
  
- - Allow user to sign up with email+password (i.e. update email and password -
-    convert an anonymous account to a permanent one)
+ - Need to update the nav bar button after registering/signing in to show the
+    sign out button instead of the sign in button. Currently, the view does not
+    call viewWillAppear after returning from the modal VC
  - After user logs in/registers acc, need to switch the login icon/bar button item
     to sign out instead - store as enum state?
  */
@@ -37,7 +40,7 @@ class RemindersViewController: UIViewController {
     // MARK: Properties
     var contentView: RemindersView!
     
-    var dataManager: RemindersDataManager = RemindersDataManager()
+    lazy var dataManager: RemindersDataManager = RemindersDataManager()
     
     // MARK: Object lifecycle
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -65,6 +68,9 @@ class RemindersViewController: UIViewController {
         
         dataManager.setupFirebaseListeners { [weak self] in
             guard let self = self else { return }
+            self.configureNavBar()
+            print("Setting up firebase listeners")
+            
             // more transition code - might be weird with table view UI updates
             // in other areas though
             UIView.transition(with: self.contentView.remindersTableView, duration: 0.25, options: .transitionCrossDissolve, animations: self.contentView.remindersTableView.reloadData, completion: nil)
@@ -82,12 +88,6 @@ class RemindersViewController: UIViewController {
         contentView = view
     }
     
-    private func configureNavBar() {
-        navigationItem.title = "Reminders"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(presentSignInVC))
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(presentAddReminderSheetVC))
-    }
-    
     private func setTableViewDelegate() {
         contentView.remindersTableView.delegate = self
         contentView.remindersTableView.dataSource = dataManager
@@ -95,8 +95,23 @@ class RemindersViewController: UIViewController {
     
     private func setup() {
         setupView()
-        configureNavBar()
         setTableViewDelegate()
+    }
+    
+    private func configureNavBar() {
+        navigationItem.title = "Reminders"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(presentAddReminderSheetVC))
+        
+        // TODO: switch case for auth state
+        let authState = dataManager.getAuthState()
+        
+        switch authState {
+        case .notSignedIn:
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Sign In", style: .plain, target: self, action: #selector(presentSignInVC))
+        case .signedIn:
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Sign out", style: .plain, target: self, action: #selector(signOutUser))
+        }
+        
     }
     
     // MARK: - Utility methods
@@ -121,9 +136,17 @@ class RemindersViewController: UIViewController {
     }
     
     @objc func presentSignInVC() {
-        let signInVC = SignInViewController(delegate: self)
+        let signInVC = SignInViewController(delegate: dataManager)
         let navVC = UINavigationController(rootViewController: signInVC)
+        navVC.modalPresentationStyle = .fullScreen
         navigationController?.present(navVC, animated: true, completion: nil)
+    }
+    
+    // MARK: - Misc button methods
+    @objc func signOutUser() {
+        dataManager.signOutUser()
+        configureNavBar()
+        contentView.remindersTableView.reloadData()
     }
 }
 
@@ -146,18 +169,6 @@ extension RemindersViewController: AddReminderItemDelegate {
         }
         newReminderItemRef.setValue(newReminderItem.toDict())
     }
-}
-
-// MARK: - Sign in delegate
-extension RemindersViewController: SignInViewDelegate {
-    func signInView(_ signInView: SignInView, didTapSignInButtonWith credentials: TempUserCredentials) {
-        print("SIGNED IN - VC")
-    }
-    
-    func signInView(_ signInView: SignInView, didTapRegisterButtonWith credentials: TempUserCredentials) {
-        print("REGISTERED - VC")
-    }
-    
 }
 
 // MARK: - Table view methods

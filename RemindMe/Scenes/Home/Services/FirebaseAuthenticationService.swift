@@ -56,4 +56,13 @@ class FirebaseAuthenticationService: NSObject {
         Auth.auth().removeStateDidChangeListener(authHandle)
     }
     
+    public func signOutUser() {
+        do {
+            try Auth.auth().signOut()
+        } catch {
+            print("error signing out")
+            return
+        }
+    }
+    
 }

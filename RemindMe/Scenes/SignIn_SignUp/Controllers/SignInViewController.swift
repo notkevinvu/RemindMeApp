@@ -13,11 +13,11 @@ class SignInViewController: UIViewController {
     // MARK: - Properties
     var contentView: SignInView!
     
-    weak var delegate: SignInViewDelegate?
+    weak var delegate: SignInDelegate?
     
     // MARK: - Object lifecycle
     
-    init(delegate: SignInViewDelegate) {
+    init(delegate: SignInDelegate) {
         super.init(nibName: nil, bundle: nil)
         self.delegate = delegate
         setup()
@@ -43,6 +43,7 @@ class SignInViewController: UIViewController {
         // into the current VC on initialization. Thus, we can force cast the delegate
         // to inject into the view
         let view = SignInView(delegate: delegate!)
+        view.postSignInDelegate = self
         contentView = view
     }
     
@@ -62,4 +63,11 @@ class SignInViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
+}
+
+// MARK: - Post sign in delegate
+extension SignInViewController: PostSignInDelegate {
+    func didFinishSigningInOrRegistering() {
+        dismiss(animated: true, completion: nil)
+    }
 }

@@ -8,15 +8,21 @@
 
 import UIKit
 
-protocol SignInViewDelegate: AnyObject {
-    func signInView(_ signInView: SignInView, shouldSignInWith credentials: TempUserCredentials)
-    func signInView(_ signInView: SignInView, shouldRegisterWith credentials: TempUserCredentials)
+protocol SignInDelegate: AnyObject {
+    func signInView(_ signInView: SignInView, didTapSignInButtonWith credentials: TempUserCredentials, completion: @escaping () -> Void)
+    func signInView(_ signInView: SignInView, didTapRegisterButtonWith credentials: TempUserCredentials, completion: @escaping () -> Void)
+}
+
+protocol PostSignInDelegate: AnyObject {
+    func didFinishSigningInOrRegistering()
 }
 
 class SignInView: UIView {
     
     // MARK: - Properties
-    weak var delegate: SignInViewDelegate?
+    weak var delegate: SignInDelegate?
+    
+    weak var postSignInDelegate: PostSignInDelegate?
     
     lazy var stackView: UIStackView = {
         let stack = UIStackView()
@@ -35,6 +41,7 @@ class SignInView: UIView {
         tf.adjustsFontSizeToFitWidth = true
         tf.textAlignment = .center
         tf.delegate = self
+//        tf.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
         tf.translatesAutoresizingMaskIntoConstraints = false
         
         tf.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
@@ -48,6 +55,7 @@ class SignInView: UIView {
         tf.textAlignment = .center
         tf.adjustsFontSizeToFitWidth = true
         tf.delegate = self
+        tf.isSecureTextEntry = true
         tf.translatesAutoresizingMaskIntoConstraints = false
         
         tf.backgroundColor = UIColor.lightGray.withAlphaComponent(0.2)
@@ -85,7 +93,7 @@ class SignInView: UIView {
     }()
     
     // MARK: - Object lifecycle
-    init(delegate: SignInViewDelegate) {
+    init(delegate: SignInDelegate) {
         self.delegate = delegate
         super.init(frame: .zero)
         setup()
@@ -129,26 +137,27 @@ class SignInView: UIView {
     
     // MARK: - Button methods
     @objc func didTapSignInButton() {
-        print("SIGN IN BUTTON TAPPED")
+        print("Tapped sign in button")
         guard
             let emailString = emailTextField.text,
             !emailString.isEmpty,
+            isValidEmail(emailString),
             let passwordString = passwordTextField.text,
             passwordString.count >= 8
         // TODO: If the above guard statements aren't satisfied, call a function
         // to turn email/pw text fields slightly red (maybe border color)
         // to indicate an error - maybe also trigger an alert controller that
         // tells them the requirements for email and pw
-        else {
-            print("ERROR SIGN IN")
-            return }
+        else { return }
         
         let tempUserCredentials = TempUserCredentials(email: emailString, password: passwordString)
-        delegate?.signInView(self, shouldSignInWith: tempUserCredentials)
+        delegate?.signInView(self, didTapSignInButtonWith: tempUserCredentials, completion: { [weak self] in
+            guard let self = self else { return }
+            self.postSignInDelegate?.didFinishSigningInOrRegistering()
+        })
     }
     
     @objc func didTapRegisterButton() {
-        print("REGISTER BUTTON TAPPED")
         guard
             let emailString = emailTextField.text,
             !emailString.isEmpty,
@@ -158,27 +167,52 @@ class SignInView: UIView {
         // to turn email/pw text fields slightly red (maybe border color)
         // to indicate an error - maybe also trigger an alert controller that
         // tells them the requirements for email and pw
-        else {
-            print("ERROR REGISTER")
-            return }
+        else { return }
         
         let tempUserCredentials = TempUserCredentials(email: emailString, password: passwordString)
-        print(tempUserCredentials.email)
         
-        delegate?.signInView(self, shouldRegisterWith: tempUserCredentials)
+        delegate?.signInView(self, didTapRegisterButtonWith: tempUserCredentials, completion: { [weak self] in
+            guard let self = self else { return }
+            self.postSignInDelegate?.didFinishSigningInOrRegistering()
+        })
     }
     
 }
 
+// MARK: - Utility methods
+extension SignInView {
+    func isValidEmail(_ email: String) -> Bool {
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        
+        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        return emailPredicate.evaluate(with: email)
+    }
+}
+
+
 // MARK: - Text field delegate
 extension SignInView: UITextFieldDelegate {
-    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        
-        if textField == passwordTextField {
-            // perform sign in function here
-        }
+        // we will just have the text field/keyboard resign instead of allowing
+        // it to sign in users on pressing the return button on keyboard
         textField.resignFirstResponder()
         return true
+    }
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
+        // displaying red to let users know the email isnt valid
+        if textField == emailTextField {
+            guard let currentEmailText = textField.text else { return }
+            if !isValidEmail(currentEmailText) {
+                emailTextField.layer.borderWidth = 1
+                emailTextField.layer.borderColor = UIColor.red.cgColor
+                emailTextField.textColor = .red
+            }
+            
+            if isValidEmail(currentEmailText) {
+                emailTextField.layer.borderWidth = 0
+                emailTextField.textColor = .black
+            }
+        }
     }
 }
