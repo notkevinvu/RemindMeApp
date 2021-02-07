@@ -30,7 +30,10 @@
 		25CA1B70256CDA7400F7154E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 25CA1B6F256CDA7400F7154E /* GoogleService-Info.plist */; };
 		25CA1B76256CE97800F7154E /* FirebaseAuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25CA1B75256CE97800F7154E /* FirebaseAuthenticationService.swift */; };
 		25CA1B7B256CEA0300F7154E /* FirebaseObserverService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25CA1B7A256CEA0300F7154E /* FirebaseObserverService.swift */; };
-		25DDA84E257CA55800229FBD /* RemindersDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DDA84D257CA55800229FBD /* RemindersDataSource.swift */; };
+		25DDA84E257CA55800229FBD /* RemindersDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DDA84D257CA55800229FBD /* RemindersDataManager.swift */; };
+		25DDA87A2580B58500229FBD /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DDA8792580B58500229FBD /* SignInViewController.swift */; };
+		25DDA8812580B5BE00229FBD /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DDA8802580B5BE00229FBD /* SignInView.swift */; };
+		25DDA8A92585DAC200229FBD /* TempUserCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DDA8A82585DAC200229FBD /* TempUserCredentials.swift */; };
 		5B807A3D9B1C042540AA2242 /* Pods_RemindMe.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B057C388EA0388AA7F76E0C7 /* Pods_RemindMe.framework */; };
 		7E275F4BCA0FC576E5EBF45D /* Pods_RemindMe_RemindMeUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 979782996A069BE85271E0B2 /* Pods_RemindMe_RemindMeUITests.framework */; };
 		EAC682CE8E7A4FC7397C2936 /* Pods_RemindMeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0840C35C2478E5FC7814E85 /* Pods_RemindMeTests.framework */; };
@@ -84,7 +87,10 @@
 		25CA1B6F256CDA7400F7154E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		25CA1B75256CE97800F7154E /* FirebaseAuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAuthenticationService.swift; sourceTree = "<group>"; };
 		25CA1B7A256CEA0300F7154E /* FirebaseObserverService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseObserverService.swift; sourceTree = "<group>"; };
-		25DDA84D257CA55800229FBD /* RemindersDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemindersDataSource.swift; sourceTree = "<group>"; };
+		25DDA84D257CA55800229FBD /* RemindersDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemindersDataManager.swift; sourceTree = "<group>"; };
+		25DDA8792580B58500229FBD /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
+		25DDA8802580B5BE00229FBD /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		25DDA8A82585DAC200229FBD /* TempUserCredentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempUserCredentials.swift; sourceTree = "<group>"; };
 		6352D85077D7407EF1E26E52 /* Pods-RemindMeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RemindMeTests.debug.xcconfig"; path = "Target Support Files/Pods-RemindMeTests/Pods-RemindMeTests.debug.xcconfig"; sourceTree = "<group>"; };
 		979782996A069BE85271E0B2 /* Pods_RemindMe_RemindMeUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RemindMe_RemindMeUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA3EE3E2E15EFE763AA88ECF /* Pods-RemindMe-RemindMeUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RemindMe-RemindMeUITests.debug.xcconfig"; path = "Target Support Files/Pods-RemindMe-RemindMeUITests/Pods-RemindMe-RemindMeUITests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -141,7 +147,7 @@
 			children = (
 				253CA8832521973B00838BAE /* User.swift */,
 				253CA88825219E7E00838BAE /* ReminderItem.swift */,
-				25DDA84D257CA55800229FBD /* RemindersDataSource.swift */,
+				25DDA84D257CA55800229FBD /* RemindersDataManager.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -175,8 +181,9 @@
 		257778E02536B20A00A74FA7 /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
-				257778E82536B9CE00A74FA7 /* AddReminderAlert */,
+				25DDA8782580B55600229FBD /* SignIn_SignUp */,
 				257778E12536B21C00A74FA7 /* Home */,
+				257778E82536B9CE00A74FA7 /* AddReminderAlert */,
 			);
 			path = Scenes;
 			sourceTree = "<group>";
@@ -284,6 +291,40 @@
 				25CA1B7A256CEA0300F7154E /* FirebaseObserverService.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		25DDA8782580B55600229FBD /* SignIn_SignUp */ = {
+			isa = PBXGroup;
+			children = (
+				25DDA8A72585DAAF00229FBD /* Models */,
+				25DDA87F2580B59200229FBD /* Views */,
+				25DDA87E2580B58A00229FBD /* Controllers */,
+			);
+			path = SignIn_SignUp;
+			sourceTree = "<group>";
+		};
+		25DDA87E2580B58A00229FBD /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				25DDA8792580B58500229FBD /* SignInViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		25DDA87F2580B59200229FBD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				25DDA8802580B5BE00229FBD /* SignInView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		25DDA8A72585DAAF00229FBD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				25DDA8A82585DAC200229FBD /* TempUserCredentials.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		A5B2947688366C10ED83DE01 /* Frameworks */ = {
@@ -536,7 +577,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				25DDA84E257CA55800229FBD /* RemindersDataSource.swift in Sources */,
+				25DDA84E257CA55800229FBD /* RemindersDataManager.swift in Sources */,
 				2577787B2521B9EE00A74FA7 /* RemindersTableViewCell.swift in Sources */,
 				257778DC252ECC7500A74FA7 /* UIView_Constraints.swift in Sources */,
 				257778F42536BB3C00A74FA7 /* AddReminderAlertView.swift in Sources */,
@@ -545,10 +586,13 @@
 				25559014254BDF07006642AF /* IntervalStartDateTableViewCell.swift in Sources */,
 				25559019255278B1006642AF /* IntervalTimeTableViewCell.swift in Sources */,
 				25CA1B76256CE97800F7154E /* FirebaseAuthenticationService.swift in Sources */,
+				25DDA87A2580B58500229FBD /* SignInViewController.swift in Sources */,
 				257778D7252C45AB00A74FA7 /* DateComponents.swift in Sources */,
 				25777913253956D100A74FA7 /* NameOfReminderCell.swift in Sources */,
 				250DED452521AB9100BDE543 /* RemindersView.swift in Sources */,
+				25DDA8A92585DAC200229FBD /* TempUserCredentials.swift in Sources */,
 				25CA1B7B256CEA0300F7154E /* FirebaseObserverService.swift in Sources */,
+				25DDA8812580B5BE00229FBD /* SignInView.swift in Sources */,
 				257778EC2536BB1400A74FA7 /* AddReminderAlertController.swift in Sources */,
 				25C9F197251D18390060DEF1 /* AppDelegate.swift in Sources */,
 				25C9F199251D18390060DEF1 /* SceneDelegate.swift in Sources */,

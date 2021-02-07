@@ -90,7 +90,7 @@ struct ReminderItem {
             let reminderIntervalTimeValue = value[reminderIntervalTimeValueConstant] as? Int,
             let upcomingReminderTriggerDateString = value[upcomingReminderTriggerDateConstant] as? String
         else {
-            // handle errors in extracting data from snapshot
+            // TODO: handle errors in extracting data from snapshot
             return nil
         }
         

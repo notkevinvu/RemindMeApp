@@ -26,20 +26,19 @@ class RemindersTableViewCell: UITableViewCell {
         var nameOfReminder: String
         var timeRemaining: String
         var reminderType: ReminderType
-        var timeStringUntilTriggerDate: String
+        var timeUntilTriggerDateString: String
         
-        init(nameOfReminder: String, timeRemaining: Int, reminderType: ReminderType, timeStringUntilTriggerDate: String) {
+        init(nameOfReminder: String, timeRemaining: Int, reminderType: ReminderType, timeUntilTriggerDateString: String) {
             self.nameOfReminder = nameOfReminder
             self.timeRemaining = String(timeRemaining)
             self.reminderType = reminderType
-            self.timeStringUntilTriggerDate = timeStringUntilTriggerDate
+            self.timeUntilTriggerDateString = timeUntilTriggerDateString
         }
     }
     
     // MARK: Object lifecycle
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
-        
         configureCellStyle()
     }
     
@@ -54,9 +53,9 @@ class RemindersTableViewCell: UITableViewCell {
         detailTextLabel?.font = UIFont.systemFont(ofSize: 10)
     }
     
-    func configureCell(withModel model: RemindersTableViewCell.RemindersCellModel) {
+    public func configureCell(withModel model: RemindersTableViewCell.RemindersCellModel) {
         self.nameOfReminder = model.nameOfReminder
-        detailTextLabel?.text = "\(model.reminderType.rawValue) - \(model.timeStringUntilTriggerDate)"
+        detailTextLabel?.text = "\(model.reminderType.rawValue) - \(model.timeUntilTriggerDateString)"
     }
 
 }

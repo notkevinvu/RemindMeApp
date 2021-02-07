@@ -10,13 +10,10 @@ import UIKit
 
 class RemindersView: UIView {
     
-    // MARK: Properties and Constants
-    
     // MARK: UI Properties
-    
     lazy var remindersTableView: UITableView = {
         let table = UITableView()
-        // default inset extends past trailing edge; this creates a symmetric separator
+        // default inset extends to trailing edge; this creates a symmetric separator
         table.separatorInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
         table.separatorColor = .darkGray
         table.backgroundColor = .white

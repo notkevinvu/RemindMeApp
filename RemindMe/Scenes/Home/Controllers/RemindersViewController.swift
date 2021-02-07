@@ -12,7 +12,6 @@ import Firebase
 /*
  TODO 7 Dec 2020:
  
- - Move delegate out of VC? Maybe not needed, really doesn't have that much code
  - Create detail screen for viewing details about each reminder
  - Add update methods to edit reminders (name/type/time range etc)
  - Switch to collection view
@@ -22,16 +21,26 @@ import Firebase
  - Sort the reminders on main screen by closest upcoming reminder (retain
     option to sort by name of reminder? - If done this way, likely want to
     add a color tint to the cell indicating how close the next trigger date is)
- - Allow user to sign up with email+password (i.e. update email and password -
-    convert an anonymous account to a permanent one)
+    (Maybe just hold a separate array for locally filtered results in the data
+    source and have a function to .filter() the current reminder items
+    based on the time remaining and set the array to that filtered array)
+ - Move the AddReminderItemDelegate to another class (maybe dataManager as well?
+    kinda makes sense but that class is starting to get pretty crowded)
+ 
+ 
+ - Need to update the nav bar button after registering/signing in to show the
+    sign out button instead of the sign in button. Currently, the view does not
+    call viewWillAppear after returning from the modal VC
+ - After user logs in/registers acc, need to switch the login icon/bar button item
+    to sign out instead - store as enum state?
  */
 
-class RemindersViewController: UIViewController, AddReminderItemDelegate {
+class RemindersViewController: UIViewController {
     
     // MARK: Properties
     var contentView: RemindersView!
     
-    var dataSource: RemindersDataSource = RemindersDataSource()
+    lazy var dataManager: RemindersDataManager = RemindersDataManager()
     
     // MARK: Object lifecycle
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -45,22 +54,6 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
     }
     
     // MARK: View lifecycle
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        dataSource.setupFirebaseListeners { [weak self] in
-            guard let self = self else { return }
-            // more transition code - might be weird with table view UI updates
-            // in other areas though
-            UIView.transition(with: self.contentView.remindersTableView, duration: 0.25, options: .transitionCrossDissolve, animations: self.contentView.remindersTableView.reloadData, completion: nil)
-        }
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        dataSource.removeFirebaseListeners()
-    }
-    
     override func loadView() {
         super.loadView()
         view = contentView
@@ -70,53 +63,62 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
         super.viewDidLoad()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        dataManager.setupFirebaseListeners { [weak self] in
+            guard let self = self else { return }
+            self.configureNavBar()
+            print("Setting up firebase listeners")
+            
+            // more transition code - might be weird with table view UI updates
+            // in other areas though
+            UIView.transition(with: self.contentView.remindersTableView, duration: 0.25, options: .transitionCrossDissolve, animations: self.contentView.remindersTableView.reloadData, completion: nil)
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        dataManager.removeFirebaseListeners()
+    }
+    
     // MARK: Setup
     private func setupView() {
         let view = RemindersView()
         contentView = view
     }
     
-    private func configureNavBar() {
-        navigationItem.title = "Reminders"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(presentAddReminderSheetVC))
-    }
-    
-    // MARK: - TODO: CHANGE TABLE VIEW DELEGATE
     private func setTableViewDelegate() {
         contentView.remindersTableView.delegate = self
-        
-        contentView.remindersTableView.dataSource = dataSource
+        contentView.remindersTableView.dataSource = dataManager
     }
     
     private func setup() {
         setupView()
-        configureNavBar()
         setTableViewDelegate()
     }
     
-    // MARK: Delegate methods
-    func saveReminderItem(_ reminderItem: ReminderItem) {
-        let newReminderItemRef = dataSource.getCurrentUserRef().childByAutoId()
-        var newReminderItem = reminderItem
-
-        let numberOfDuplicates = checkNumberOfDuplicateNames(forName: reminderItem.nameOfReminder)
-        if numberOfDuplicates > 0 {
-            newReminderItem.nameOfReminder.append(" (\(numberOfDuplicates))")
+    private func configureNavBar() {
+        navigationItem.title = "Reminders"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(presentAddReminderSheetVC))
+        
+        // TODO: switch case for auth state
+        let authState = dataManager.getAuthState()
+        
+        switch authState {
+        case .notSignedIn:
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Sign In", style: .plain, target: self, action: #selector(presentSignInVC))
+        case .signedIn:
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Sign out", style: .plain, target: self, action: #selector(signOutUser))
         }
         
-        dataSource.append(reminderItem: newReminderItem) { [weak self] in
-            guard let self = self else { return }
-            // use reloadRows here so that we get a nice animation :)
-            let indexPath = IndexPath(row: self.dataSource.allReminderItems().count - 1, section: 0)
-            self.contentView.remindersTableView.insertRows(at: [indexPath], with: .automatic)
-        }
-        newReminderItemRef.setValue(newReminderItem.toDict())
     }
     
     // MARK: - Utility methods
+    // TODO: Maybe move this to datasource?
     private func checkNumberOfDuplicateNames(forName name: String) -> Int {
         var numberOfDuplicates = 0
-        let reminderItems = dataSource.allReminderItems()
+        let reminderItems = dataManager.allReminderItems()
         for item in reminderItems {
             if name == item.nameOfReminder {
                 numberOfDuplicates += 1
@@ -132,6 +134,41 @@ class RemindersViewController: UIViewController, AddReminderItemDelegate {
         let navVC = UINavigationController(rootViewController: addReminderAlertVC)
         navigationController?.present(navVC, animated: true, completion: nil)
     }
+    
+    @objc func presentSignInVC() {
+        let signInVC = SignInViewController(delegate: dataManager)
+        let navVC = UINavigationController(rootViewController: signInVC)
+        navVC.modalPresentationStyle = .fullScreen
+        navigationController?.present(navVC, animated: true, completion: nil)
+    }
+    
+    // MARK: - Misc button methods
+    @objc func signOutUser() {
+        dataManager.signOutUser()
+        configureNavBar()
+        contentView.remindersTableView.reloadData()
+    }
+}
+
+// MARK: - Add reminder item delegate
+extension RemindersViewController: AddReminderItemDelegate {
+    func saveReminderItem(_ reminderItem: ReminderItem) {
+        let newReminderItemRef = dataManager.getCurrentUserRef().childByAutoId()
+        var newReminderItem = reminderItem
+        
+        let numberOfDuplicates = checkNumberOfDuplicateNames(forName: reminderItem.nameOfReminder)
+        if numberOfDuplicates > 0 {
+            newReminderItem.nameOfReminder.append(" (\(numberOfDuplicates))")
+        }
+        
+        dataManager.append(reminderItem: newReminderItem) { [weak self] in
+            guard let self = self else { return }
+            // use insertRows here so that we get a nice animation :)
+            let indexPath = IndexPath(row: self.dataManager.allReminderItems().count - 1, section: 0)
+            self.contentView.remindersTableView.insertRows(at: [indexPath], with: .automatic)
+        }
+        newReminderItemRef.setValue(newReminderItem.toDict())
+    }
 }
 
 // MARK: - Table view methods
@@ -145,6 +182,5 @@ extension RemindersViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
 }
 
